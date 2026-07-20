@@ -4,7 +4,15 @@
     <meta charset="UTF-8">
     <title>Espace Opérateur - Mobile Money</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .bareme-card { transition: 0.15s; }
+        .bareme-card:hover { background-color: #f8f9fa; border-color: #BA1A1A !important; }
+    </style>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
 <body class="bg-light">
 
 <nav class="navbar navbar-dark bg-danger mb-4">
@@ -20,8 +28,11 @@
     <!-- SECTION 1 : Préfixes opérateurs -->
     <!-- ========================================= -->
     <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-white">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <strong>Préfixes valables</strong>
+            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalAjoutPrefixe">
+                + Ajouter
+            </button>
         </div>
         <div class="card-body">
             <table class="table table-sm align-middle">
@@ -53,17 +64,29 @@
                     <?php endforeach; ?>
                 </tbody>
             </table>
+        </div>
+    </div>
 
-            <form action="<?= base_url('admin/prefixe/add') ?>" method="post" class="row g-2 mt-2">
-                <?= csrf_field() ?>
-                <div class="col-auto">
-                    <input type="text" name="prefixe" class="form-control form-control-sm"
-                           placeholder="Ex: 034" required maxlength="5">
-                </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-sm btn-danger">Ajouter un préfixe</button>
-                </div>
-            </form>
+    <!-- Popup d'ajout de préfixe -->
+    <div class="modal fade" id="modalAjoutPrefixe" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="<?= base_url('admin/prefixe/add') ?>" method="post">
+                    <?= csrf_field() ?>
+                    <div class="modal-header">
+                        <h5 class="modal-title">Ajouter un préfixe</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label class="form-label">Préfixe</label>
+                        <input type="text" name="prefixe" class="form-control" placeholder="Ex: 034" maxlength="5" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-danger">Ajouter</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -75,52 +98,18 @@
             <strong>Barèmes de frais</strong>
         </div>
         <div class="card-body">
-            <table class="table table-sm align-middle">
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Montant min</th>
-                        <th>Montant max</th>
-                        <th>Frais</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($baremes as $b): ?>
-                        <tr>
-                            <td><?= esc($b['type_libelle']) ?></td>
-                            <td><?= number_format($b['montant_min'], 0, ',', ' ') ?> Ar</td>
-                            <td><?= number_format($b['montant_max'], 0, ',', ' ') ?> Ar</td>
-                            <td><?= number_format($b['frais'], 0, ',', ' ') ?> Ar</td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-
-            <hr>
-            <p class="small text-muted mb-2">Ajouter une nouvelle tranche (remplace automatiquement l'ancienne tranche active du même type) :</p>
-            <form action="<?= base_url('admin/bareme/add') ?>" method="post" class="row g-2">
-                <?= csrf_field() ?>
-                <div class="col-md-3">
-                    <select name="type_operation_id" class="form-select form-select-sm" required>
-                        <option value="">-- Type --</option>
-                        <?php foreach ($types as $t): ?>
-                            <option value="<?= $t['id'] ?>"><?= esc($t['libelle']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <input type="number" step="0.01" name="montant_min" class="form-control form-control-sm" placeholder="Montant min" required>
-                </div>
-                <div class="col-md-3">
-                    <input type="number" step="0.01" name="montant_max" class="form-control form-control-sm" placeholder="Montant max" required>
-                </div>
-                <div class="col-md-2">
-                    <input type="number" step="0.01" name="frais" class="form-control form-control-sm" placeholder="Frais" required>
-                </div>
-                <div class="col-md-1">
-                    <button type="submit" class="btn btn-sm btn-danger w-100">OK</button>
-                </div>
-            </form>
+            <div class="row g-3">
+                <?php foreach ($types as $t): ?>
+                    <div class="col-md-4">
+                        <a href="<?= base_url('admin/bareme/type/' . $t['id']) ?>" class="text-decoration-none">
+                            <div class="border rounded p-4 text-center h-100 text-dark bareme-card">
+                                <div class="fs-5 fw-bold"><?= esc($t['libelle']) ?></div>
+                                <div class="text-muted small mt-1">Voir / modifier les tranches</div>
+                            </div>
+                        </a>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         </div>
     </div>
 

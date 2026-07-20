@@ -20,15 +20,40 @@ class BaremeFraisModel extends Model
                     ->findAll();
     }
 
-    public function remplacerTranche($typeOperationId, $montantMin, $montantMax, $frais)
+    // Liste les tranches actives d'un seul type d'opération, triées par montant
+    public function getByType($typeOperationId)
     {
-        $this->where('type_operation_id', $typeOperationId)
-             ->where('actif', 1)
-             ->set(['actif' => 0])
-             ->update();
+        return $this->where('type_operation_id', $typeOperationId)
+                    ->where('actif', 1)
+                    ->orderBy('montant_min', 'ASC')
+                    ->findAll();
+    }
 
+    // Ajoute une tranche toute nouvelle (n'affecte pas les tranches existantes)
+    public function ajouterTranche($typeOperationId, $montantMin, $montantMax, $frais)
+    {
         return $this->insert([
             'type_operation_id' => $typeOperationId,
+            'montant_min'       => $montantMin,
+            'montant_max'       => $montantMax,
+            'frais'             => $frais,
+            'actif'             => 1,
+        ]);
+    }
+
+    // Modifie UNE tranche précise (par son id) : désactive seulement celle-ci,
+    // puis insère la nouvelle version. Les autres tranches du même type ne sont pas touchées.
+    public function modifierTranche($id, $montantMin, $montantMax, $frais)
+    {
+        $ancienne = $this->find($id);
+        if (!$ancienne) {
+            return false;
+        }
+
+        $this->update($id, ['actif' => 0]);
+
+        return $this->insert([
+            'type_operation_id' => $ancienne['type_operation_id'],
             'montant_min'       => $montantMin,
             'montant_max'       => $montantMax,
             'frais'             => $frais,

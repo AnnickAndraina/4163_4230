@@ -26,14 +26,12 @@ class AdminController extends BaseController
 
         $prefixeModel = new PrefixeOperateurModel();
         $typeModel    = new TypeOperationModel();
-        $baremeModel  = new BaremeFraisModel();
         $gainsModel   = new GainsModel();
         $comptesModel = new ComptesModel();
 
         return view('admin_dashboard', [
             'prefixes' => $prefixeModel->getAll(),
             'types'    => $typeModel->findAll(),
-            'baremes'  => $baremeModel->getActifsAvecType(),
             'gains'    => $gainsModel->getSituation(),
             'comptes'  => $comptesModel->getSituation(),
         ]);
@@ -73,15 +71,53 @@ class AdminController extends BaseController
     {
         if ($redirect = $this->checkAuth()) return $redirect;
 
+        $typeId = $this->request->getPost('type_operation_id');
         $baremeModel = new BaremeFraisModel();
-        $baremeModel->remplacerTranche(
-            $this->request->getPost('type_operation_id'),
+
+        $baremeModel->ajouterTranche(
+            $typeId,
             $this->request->getPost('montant_min'),
             $this->request->getPost('montant_max'),
             $this->request->getPost('frais')
         );
 
-        return redirect()->to('admin/dashboard');
+        return redirect()->to('admin/bareme/type/' . $typeId);
+    }
+
+    public function baremeType($typeId)
+    {
+        if ($redirect = $this->checkAuth()) return $redirect;
+
+        $typeModel   = new TypeOperationModel();
+        $baremeModel = new BaremeFraisModel();
+
+        $type = $typeModel->find($typeId);
+        if (!$type) {
+            return redirect()->to('admin/dashboard');
+        }
+
+        return view('admin_bareme_type', [
+            'type'    => $type,
+            'baremes' => $baremeModel->getByType($typeId),
+        ]);
+    }
+
+    public function updateBareme()
+    {
+        if ($redirect = $this->checkAuth()) return $redirect;
+
+        $baremeModel = new BaremeFraisModel();
+        $id     = $this->request->getPost('id');
+        $typeId = $this->request->getPost('type_operation_id');
+
+        $baremeModel->modifierTranche(
+            $id,
+            $this->request->getPost('montant_min'),
+            $this->request->getPost('montant_max'),
+            $this->request->getPost('frais')
+        );
+
+        return redirect()->to('admin/bareme/type/' . $typeId);
     }
 
     public function logout()
