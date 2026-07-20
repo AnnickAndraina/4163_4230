@@ -10,7 +10,7 @@ class ConnexionController extends BaseController
     public function index()
     {
         return view('login', [
-            'values' => ['telephone' => ''],
+            'values' => ['telephone' => '0331234567'],
             'errors' => ['telephone' => '']
         ]);
     }
@@ -152,6 +152,8 @@ class ConnexionController extends BaseController
             ]);
 
             session()->setFlashdata('popup_frais', "Votre frais pour le retrait est de " . number_format($frais, 0, ',', ' ') . " Ar.");
+        } else {
+            session()->setFlashdata('popup_frais', "Solde insuffisant pour effectuer ce retrait.");
         }
 
         return redirect()->to('home');
@@ -196,6 +198,8 @@ class ConnexionController extends BaseController
             ]);
 
             session()->setFlashdata('popup_frais', "Votre frais pour le transfert est de " . number_format($frais, 0, ',', ' ') . " Ar.");
+        } else {
+            session()->setFlashdata('popup_frais', "Transfert impossible : solde insuffisant ou destinataire introuvable.");
         }
 
         return redirect()->to('home');
