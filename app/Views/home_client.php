@@ -72,7 +72,7 @@
                     <div class="icon-box badge-transfer me-3"><i class="bi bi-send"></i></div>
                     <div class="flex-grow-1">
                         <h6 class="mb-0 fw-bold">Transfert</h6>
-                        <small class="text-muted">Envoyer à un proche</small>
+                        <small class="text-muted">Envoyer à un ou plusieurs numéros (même opérateur)</small>
                     </div>
                     <i class="bi bi-chevron-right text-muted"></i>
                 </div>
@@ -154,7 +154,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-primary"><i class="bi bi-info-circle me-2"></i>Information sur les frais</h5>
+                <h5 class="modal-title fw-bold text-primary"><i class="bi bi-info-circle me-2"></i>Information</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body py-4 text-center">
@@ -168,6 +168,7 @@
 </div>
 <?php endif; ?>
 
+<!-- Modal Dépôt -->
 <div class="modal fade" id="modalDepot" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow">
@@ -195,6 +196,7 @@
     </div>
 </div>
 
+<!-- Modal Retrait -->
 <div class="modal fade" id="modalRetrait" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow">
@@ -223,29 +225,37 @@
     </div>
 </div>
 
+<!-- Modal Transfert -->
 <div class="modal fade" id="modalTransfert" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold">Effectuer un Transfert</h5>
+                <h5 class="modal-title fw-bold">Effectuer un Transfert (multiple possible)</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="<?= base_url('client/transfert') ?>" method="post">
                 <?= csrf_field() ?>
                 <div class="modal-body py-4">
                     <div class="mb-3">
-                        <label class="form-label small fw-medium text-muted">Numéro du destinataire</label>
+                        <label class="form-label small fw-medium text-muted">Numéro(s) du destinataire (séparés par virgule)</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light"><i class="bi bi-telephone"></i></span>
-                            <input type="text" name="destinataire" class="form-control form-control-lg" placeholder="Ex: 034 00 000 00" required>
+                            <input type="text" name="destinataire" class="form-control form-control-lg" placeholder="Ex: 0331234567,0377654321" required>
                         </div>
+                        <small class="text-muted">Pour envoi multiple : mêmes opérateurs locaux uniquement</small>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-medium text-muted">Montant à envoyer (Ar)</label>
+                        <label class="form-label small fw-medium text-muted">Montant total à envoyer (Ar)</label>
                         <div class="input-group">
-                            <input type="number" name="montant" class="form-control form-control-lg" placeholder="0.00" min="1" max="<?= $client['solde'] ?>" required>
+                            <input type="number" name="montant" class="form-control form-control-lg" placeholder="0.00" min="1" required>
                             <span class="input-group-text bg-light fw-bold">Ar</span>
                         </div>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="inclure_frais" id="inclure_frais" checked>
+                        <label class="form-check-label fw-medium" for="inclure_frais">
+                            Inclure les frais (retrait + commission inter-opérateur si applicable)
+                        </label>
                     </div>
                 </div>
                 <div class="modal-footer border-0 pt-0">
@@ -259,12 +269,20 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const popup = document.getElementById('modalPopupFrais');
         if (popup) {
-            const modal = new bootstrap.Modal(popup);
-            modal.show();
+            const modalInstance = new bootstrap.Modal(popup);
+            modalInstance.show();
         }
+
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('hidden.bs.modal', function () {
+                document.body.classList.remove('modal-open');
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(backdrop => backdrop.remove());
+            });
+        });
     });
 </script>
 </body>

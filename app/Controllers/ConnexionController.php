@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ClientModel;
 use App\Models\OperationModel;
+use App\Models\PrefixeOperateurModel;
 
 class ConnexionController extends BaseController
 {
@@ -66,7 +67,7 @@ class ConnexionController extends BaseController
         return redirect()->back()->with('error', 'Identifiants Admin incorrects.');
     }
 
-       public function home()
+    public function home()
     {
         $session = session();
         if (!$session->has('client_id')) {
@@ -85,12 +86,29 @@ class ConnexionController extends BaseController
 
         $historique = $operationModel->getHistoriqueClient($client['id']);
 
+        try {
+            $dernierTransfert = $operationModel
+                ->where('client_destinataire_id', $client['id'])
+                ->where('type_operation_id', 3)
+                ->orderBy('date_operation', 'DESC')
+                ->first();
+
+            if ($dernierTransfert && strtotime($dernierTransfert['date_operation']) > time() - 60) {
+                $frais = (float)$dernierTransfert['frais_applique'];
+                $montantRecu = (float)$dernierTransfert['montant'];
+                $message = $frais > 0 
+                    ? "Vous avez reçu " . number_format($montantRecu, 0, ',', ' ') . " Ar (frais déduits)." 
+                    : "Vous avez reçu " . number_format($montantRecu, 0, ',', ' ') . " Ar.";
+                $session->setFlashdata('popup_frais', $message);
+            }
+        } catch (\Exception $e) {}
+
         return view('home_client', [
             'client' => $client,
             'historique' => $historique
         ]);
     }
-    
+
     private function getFrais($typeOperationId, $montant)
     {
         $db = \Config\Database::connect();
@@ -105,15 +123,20 @@ class ConnexionController extends BaseController
         return $bareme ? (float)$bareme->frais : 0.0;
     }
 
+    private function isLocalOperator($telephone)
+    {
+        $prefixe = substr(str_replace(' ', '', $telephone), 0, 3);
+        $model = new PrefixeOperateurModel();
+        $row = $model->where('prefixe', $prefixe)->where('actif', 1)->first();
+        return $row !== null;
+    }
+
     public function depot()
     {
         $session = session();
-        if (!$session->has('client_id')) {
-            return redirect()->to('/');
-        }
+        if (!$session->has('client_id')) return redirect()->to('/');
 
         $montant = (float) $this->request->getPost('montant');
-        
         if ($montant <= 0) {
             $session->setFlashdata('popup_frais', "Le montant doit être supérieur à 0.");
             return redirect()->to('home');
@@ -121,13 +144,7 @@ class ConnexionController extends BaseController
 
         $clientModel = new ClientModel();
         $operationModel = new OperationModel();
-
         $client = $clientModel->find($session->get('client_id'));
-        
-        if (!$client) {
-            $session->remove('client_id');
-            return redirect()->to('/');
-        }
 
         $frais = $this->getFrais(1, $montant);
         $montantTotal = $montant + $frais;
@@ -149,22 +166,17 @@ class ConnexionController extends BaseController
             'date_operation'    => gmdate('Y-m-d H:i:s', time() + 10800)
         ]);
 
-        $session->set('client_id', $client['id']);
         $session->set('client_solde', $soldeApres);
-        $session->setFlashdata('popup_frais', "Votre frais pour le dépôt est de " . number_format($frais, 0, ',', ' ') . " Ar.");
-        
+        $session->setFlashdata('popup_frais', "Dépôt réussi. Frais : " . number_format($frais, 0, ',', ' ') . " Ar.");
         return redirect()->to('home');
     }
 
     public function retrait()
     {
         $session = session();
-        if (!$session->has('client_id')) {
-            return redirect()->to('/');
-        }
+        if (!$session->has('client_id')) return redirect()->to('/');
 
         $montant = (float) $this->request->getPost('montant');
-        
         if ($montant <= 0) {
             $session->setFlashdata('popup_frais', "Le montant doit être supérieur à 0.");
             return redirect()->to('home');
@@ -172,63 +184,54 @@ class ConnexionController extends BaseController
 
         $clientModel = new ClientModel();
         $operationModel = new OperationModel();
-
         $client = $clientModel->find($session->get('client_id'));
-        
-        if (!$client) {
-            $session->remove('client_id');
-            return redirect()->to('/');
-        }
 
         $frais = $this->getFrais(2, $montant);
         $montantTotal = $montant + $frais;
 
-        if ((float)$client['solde'] >= $montantTotal) {
-            $soldeAvant = (float)$client['solde'];
-            $soldeApres = $soldeAvant - $montantTotal;
-
-            $clientModel->update($client['id'], ['solde' => $soldeApres]);
-
-            $operationModel->insert([
-                'type_operation_id' => 2,
-                'client_id'         => $client['id'],
-                'montant'           => $montant,
-                'frais_applique'    => $frais,
-                'montant_total'     => $montantTotal,
-                'solde_avant'       => $soldeAvant,
-                'solde_apres'       => $soldeApres,
-                'statut'            => 'reussie',
-                'date_operation'    => gmdate('Y-m-d H:i:s', time() + 10800)
-            ]);
-
-            $session->set('client_id', $client['id']);
-            $session->set('client_solde', $soldeApres);
-            $session->setFlashdata('popup_frais', "Votre frais pour le retrait est de " . number_format($frais, 0, ',', ' ') . " Ar.");
-        } else {
-            $session->setFlashdata('popup_frais', "Solde insuffisant pour effectuer ce retrait.");
+        if ((float)$client['solde'] < $montantTotal) {
+            $session->setFlashdata('popup_frais', "Solde insuffisant.");
+            return redirect()->to('home');
         }
 
+        $soldeAvant = (float)$client['solde'];
+        $soldeApres = $soldeAvant - $montantTotal;
+
+        $clientModel->update($client['id'], ['solde' => $soldeApres]);
+
+        $operationModel->insert([
+            'type_operation_id' => 2,
+            'client_id'         => $client['id'],
+            'montant'           => $montant,
+            'frais_applique'    => $frais,
+            'montant_total'     => $montantTotal,
+            'solde_avant'       => $soldeAvant,
+            'solde_apres'       => $soldeApres,
+            'statut'            => 'reussie',
+            'date_operation'    => gmdate('Y-m-d H:i:s', time() + 10800)
+        ]);
+
+        $session->set('client_solde', $soldeApres);
+        $session->setFlashdata('popup_frais', "Retrait réussi. Frais : " . number_format($frais, 0, ',', ' ') . " Ar.");
         return redirect()->to('home');
     }
 
     public function transfert()
     {
         $session = session();
-        if (!$session->has('client_id')) {
-            return redirect()->to('/');
-        }
+        if (!$session->has('client_id')) return redirect()->to('/');
 
-        $montant = (float) $this->request->getPost('montant');
-        
-        if ($montant <= 0) {
+        $montantTotalInput = (float) $this->request->getPost('montant');
+        $inclureFrais = $this->request->getPost('inclure_frais') === 'on';
+        $destinatairesRaw = str_replace(' ', '', $this->request->getPost('destinataire'));
+
+        if ($montantTotalInput <= 0) {
             $session->setFlashdata('popup_frais', "Le montant doit être supérieur à 0.");
             return redirect()->to('home');
         }
 
-        $destinataireTelRaw = $this->request->getPost('destinataire');
-        $destinataireTel = str_replace(' ', '', $destinataireTelRaw);
-
-        if (empty($destinataireTel) || strlen($destinataireTel) !== 10) {
+        $destinatairesList = array_filter(array_unique(explode(',', $destinatairesRaw)));
+        if (empty($destinatairesList)) {
             $session->setFlashdata('popup_frais', "Numéro de destinataire invalide.");
             return redirect()->to('home');
         }
@@ -237,51 +240,89 @@ class ConnexionController extends BaseController
         $operationModel = new OperationModel();
 
         $expediteur = $clientModel->find($session->get('client_id'));
-        
-        if (!$expediteur) {
-            $session->remove('client_id');
-            return redirect()->to('/');
-        }
+        if (!$expediteur) return redirect()->to('/');
 
-        if ($destinataireTel === $expediteur['numero_telephone']) {
-            $session->setFlashdata('popup_frais', "Vous ne pouvez pas vous transférer à vous-même.");
+        $nombreDest = count($destinatairesList);
+        $montantParDest = floor($montantTotalInput / $nombreDest);
+        if ($montantParDest <= 0) {
+            $session->setFlashdata('popup_frais', "Montant par destinataire trop faible.");
             return redirect()->to('home');
         }
 
-        $destinataire = $clientModel->where('numero_telephone', $destinataireTel)->first();
-        $frais = $this->getFrais(3, $montant);
-        $montantTotal = $montant + $frais;
+        $fraisStandard = $this->getFrais(3, $montantParDest);
+        $commissionRate = 0.01;
+        $isAllLocal = true;
+        $destinatairesData = [];
 
-        if ($destinataire && (float)$expediteur['solde'] >= $montantTotal) {
-            
-            $soldeAvantExp = (float)$expediteur['solde'];
-            $soldeApresExp = $soldeAvantExp - $montantTotal;
-            $clientModel->update($expediteur['id'], ['solde' => $soldeApresExp]);
-
-            $soldeAvantDest = (float)$destinataire['solde'];
-            $soldeApresDest = $soldeAvantDest + $montant;
-            $clientModel->update($destinataire['id'], ['solde' => $soldeApresDest]);
-
-            $operationModel->insert([
-                'type_operation_id'        => 3,
-                'client_id'                => $expediteur['id'],
-                'client_destinataire_id'   => $destinataire['id'],
-                'montant'                  => $montant,
-                'frais_applique'           => $frais,
-                'montant_total'            => $montantTotal,
-                'solde_avant'              => $soldeAvantExp,
-                'solde_apres'              => $soldeApresExp,
-                'statut'                   => 'reussie',
-                'date_operation'           => gmdate('Y-m-d H:i:s', time() + 10800)
-            ]);
-
-            $session->set('client_id', $expediteur['id']);
-            $session->set('client_solde', $soldeApresExp);
-            $session->setFlashdata('popup_frais', "Votre frais pour le transfert est de " . number_format($frais, 0, ',', ' ') . " Ar.");
-        } else {
-            $session->setFlashdata('popup_frais', "Transfert impossible : solde insuffisant ou destinataire introuvable.");
+        foreach ($destinatairesList as $tel) {
+            if (strlen($tel) !== 10 || !ctype_digit($tel)) {
+                $session->setFlashdata('popup_frais', "Numéro de destinataire invalide.");
+                return redirect()->to('home');
+            }
+            if ($tel === $expediteur['numero_telephone']) {
+                $session->setFlashdata('popup_frais', "Vous ne pouvez pas vous transférer à vous-même.");
+                return redirect()->to('home');
+            }
+            $dest = $clientModel->where('numero_telephone', $tel)->first();
+            if (!$dest) {
+                $session->setFlashdata('popup_frais', "Destinataire introuvable : " . $tel);
+                return redirect()->to('home');
+            }
+            $isLocalDest = $this->isLocalOperator($tel);
+            if (!$isLocalDest) $isAllLocal = false;
+            $destinatairesData[] = ['dest' => $dest, 'tel' => $tel, 'isLocal' => $isLocalDest];
         }
 
+        if (!$isAllLocal && $nombreDest > 1) {
+            $session->setFlashdata('popup_frais', "Envoi multiple autorisé uniquement vers opérateurs locaux.");
+            return redirect()->to('home');
+        }
+
+        $commissionInterParDest = 0;
+        if (!$isAllLocal) {
+            $commissionInterParDest = round($montantParDest * $commissionRate, 0);
+        }
+
+        $fraisTotalParDest = $inclureFrais ? $fraisStandard + $commissionInterParDest : $fraisStandard;
+        $montantTotalADebiter = $montantParDest * $nombreDest + ($inclureFrais ? $fraisTotalParDest * $nombreDest : $fraisStandard * $nombreDest);
+        $montantRecuParDest = $inclureFrais ? $montantParDest : $montantParDest - $commissionInterParDest;
+
+        if ((float)$expediteur['solde'] < $montantTotalADebiter) {
+            $session->setFlashdata('popup_frais', "Solde insuffisant.");
+            return redirect()->to('home');
+        }
+
+        $soldeAvantExp = (float)$expediteur['solde'];
+        $soldeApresExp = $soldeAvantExp - $montantTotalADebiter;
+        $clientModel->update($expediteur['id'], ['solde' => $soldeApresExp]);
+
+        foreach ($destinatairesData as $dData) {
+            $dest = $dData['dest'];
+            $soldeAvantDest = (float)$dest['solde'];
+            $soldeApresDest = $soldeAvantDest + $montantRecuParDest;
+            $clientModel->update($dest['id'], ['solde' => $soldeApresDest]);
+
+            $operationModel->insert([
+                'type_operation_id'      => 3,
+                'client_id'              => $expediteur['id'],
+                'client_destinataire_id' => $dest['id'],
+                'montant'                => $montantParDest,
+                'frais_applique'         => $fraisTotalParDest,
+                'montant_total'          => $montantParDest + $fraisTotalParDest,
+                'solde_avant'            => $soldeAvantExp,
+                'solde_apres'            => $soldeApresExp,
+                'statut'                 => 'reussie',
+                'date_operation'         => gmdate('Y-m-d H:i:s', time() + 10800)
+            ]);
+        }
+
+        $session->set('client_solde', $soldeApresExp);
+
+        $msg = $inclureFrais 
+            ? "Transfert multiple réussi vers " . $nombreDest . " destinataire(s). Frais total : " . number_format($fraisTotalParDest * $nombreDest, 0, ',', ' ') . " Ar."
+            : "Transfert multiple réussi. Chaque destinataire reçoit " . number_format($montantRecuParDest, 0, ',', ' ') . " Ar.";
+
+        $session->setFlashdata('popup_frais', $msg);
         return redirect()->to('home');
     }
 
