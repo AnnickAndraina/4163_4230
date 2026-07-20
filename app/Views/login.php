@@ -6,7 +6,105 @@
     <title>Connexion - Mobile Money</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-vh: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .login-card {
+            border: none;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(30, 60, 114, 0.08);
+            overflow: hidden;
+            background: #ffffff;
+        }
+        .brand-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            transition: background 0.4s ease;
+        }
+        .brand-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 16px auto;
+            backdrop-filter: blur(4px);
+        }
+        .form-control-lg {
+            border-radius: 12px;
+            font-size: 1rem;
+            padding: 12px 16px;
+            border-color: #e2e8f0;
+        }
+        .form-control-lg:focus {
+            border-color: #2a5298;
+            box-shadow: 0 0 0 4px rgba(42, 82, 152, 0.1);
+        }
+        .input-group-text-custom {
+            background-color: transparent;
+            border-color: #e2e8f0;
+            border-radius: 12px 0 0 12px !important;
+            color: #94a3b8;
+            padding-left: 16px;
+        }
+        .has-icon .form-control-lg {
+            border-radius: 0 12px 12px 0 !important;
+        }
+        .btn-custom-primary {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-custom-primary:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(42, 82, 152, 0.2);
+            color: white;
+        }
+        .btn-custom-danger {
+            background: linear-gradient(135deg, #cb2d3e 0%, #ef473a 100%);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-custom-danger:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 71, 58, 0.2);
+            color: white;
+        }
+        .alert-custom {
+            border-radius: 12px;
+            border: none;
+            font-size: 0.875rem;
+        }
+        .toggle-link {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .toggle-link:hover {
+            color: #1e3c72;
+        }
+    </style>
 </head>
 <body>
 
