@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\ClientModel;
+use App\Models\OperationModel;
 
 class ConnexionController extends BaseController
 {
@@ -18,9 +19,9 @@ class ConnexionController extends BaseController
         $model = new ClientModel();
         $client = $model->autoLogin($telephone);
 
-        session()->set('client', $client);
+        session()->set('client_id', $client['id']);
 
-        echo "Connecté ! Numéro : " . esc($client['telephone']) . " | Solde : " . esc($client['solde']) . " Ar";
+        return redirect()->to('home');
     }
 
     public function loginAdmin()
@@ -38,5 +39,116 @@ class ConnexionController extends BaseController
         }
 
         return redirect()->back()->with('error', 'Identifiants Admin incorrects.');
+    }
+
+    public function home()
+    {
+        if (!session()->has('client_id')) {
+            return redirect()->to('/');
+        }
+
+        $clientModel = new ClientModel();
+        $operationModel = new OperationModel();
+
+        $client = $clientModel->find(session()->get('client_id'));
+        $historique = $operationModel->getHistoriqueClient($client['id']);
+
+        return view('home_client', [
+            'client' => $client,
+            'historique' => $historique
+        ]);
+    }
+
+    public function depot()
+    {
+        $montant = (float) $this->request->getPost('montant');
+        $clientModel = new ClientModel();
+        $operationModel = new OperationModel();
+
+        $client = $clientModel->find(session()->get('client_id'));
+
+        $soldeAvant = $client['solde'];
+        $soldeApres = $soldeAvant + $montant;
+
+        $clientModel->update($client['id'], ['solde' => $soldeApres]);
+
+        $operationModel->insert([
+            'type_operation_id' => 1, // 1 correspond à DEPOT dans ton script
+            'client_id'         => $client['id'],
+            'montant'           => $montant,
+            'frais_applique'    => 0,
+            'montant_total'     => $montant,
+            'solde_avant'       => $soldeAvant,
+            'solde_apres'       => $soldeApres,
+            'statut'            => 'reussie'
+        ]);
+
+        return redirect()->to('home');
+    }
+
+    public function retrait()
+    {
+        $montant = (float) $this->request->getPost('montant');
+        $clientModel = new ClientModel();
+        $operationModel = new OperationModel();
+
+        $client = $clientModel->find(session()->get('client_id'));
+
+        if ($client['solde'] >= $montant) {
+            $soldeAvant = $client['solde'];
+            $soldeApres = $soldeAvant - $montant;
+
+            $clientModel->update($client['id'], ['solde' => $soldeApres]);
+
+            $operationModel->insert([
+                'type_operation_id' => 2, // 2 correspond à RETRAIT dans ton script
+                'client_id'         => $client['id'],
+                'montant'           => $montant,
+                'frais_applique'    => 0,
+                'montant_total'     => $montant,
+                'solde_avant'       => $soldeAvant,
+                'solde_apres'       => $soldeApres,
+                'statut'            => 'reussie'
+            ]);
+        }
+
+        return redirect()->to('home');
+    }
+
+    public function transfert()
+    {
+        $montant = (float) $this->request->getPost('montant');
+        $destinataireTel = $this->request->getPost('destinataire');
+        
+        $clientModel = new ClientModel();
+        $operationModel = new OperationModel();
+
+        $expediteur = $clientModel->find(session()->get('client_id'));
+        $destinataire = $clientModel->where('numero_telephone', $destinataireTel)->first();
+
+        if ($destinataire && $expediteur['solde'] >= $montant) {
+            
+            $soldeAvantExp = $expediteur['solde'];
+            $soldeApresExp = $soldeAvantExp - $montant;
+            $clientModel->update($expediteur['id'], ['solde' => $soldeApresExp]);
+
+            $soldeAvantDest = $destinataire['solde'];
+            $soldeApresDest = $soldeAvantDest + $montant;
+            $clientModel->update($destinataire['id'], ['solde' => $soldeApresDest]);
+
+            $operationModel->insert([
+                'type_operation_id'        => 3, // 3 correspond à TRANSFERT dans ton script
+                'client_id'                => $expediteur['id'],
+                'client_destinataire_id'   => $destinataire['id'],
+                'montant'                  => $montant,
+                'frais_applique'           => 0,
+                'montant_total'            => $montant,
+                'solde_avant'              => $soldeAvantExp,
+                'solde_apres'              => $soldeApresExp,
+                'statut'                   => 'reussie'
+            ]);
+        }
+
+        return redirect()->to('home');
     }
 }

@@ -6,20 +6,22 @@ use CodeIgniter\Model;
 
 class ClientModel extends Model
 {
-    protected $table            = 'clients';
+    protected $table            = 'client';
     protected $primaryKey       = 'id';
-    protected $allowedFields    = ['telephone', 'solde'];
+    protected $allowedFields    = ['nom', 'numero_telephone', 'solde', 'status'];
 
     public function autoLogin($telephone)
     {
-        $client = $this->where('telephone', $telephone)->first();
+        $client = $this->where('numero_telephone', $telephone)->first();
 
         if (!$client) {
             $this->insert([
-                'telephone' => $telephone,
-                'solde'     => 0
+                'nom'              => 'Client_' . $telephone,
+                'numero_telephone' => $telephone,
+                'solde'            => 0.00,
+                'status'           => 'actif'
             ]);
-            return $this->where('telephone', $telephone)->first();
+            return $this->where('numero_telephone', $telephone)->first();
         }
 
         return $client;

@@ -1,6 +1,5 @@
 PRAGMA foreign_keys = ON;
 
-
 CREATE TABLE admin (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nom VARCHAR(100),
@@ -41,10 +40,10 @@ CREATE TABLE operation (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type_operation_id INTEGER NOT NULL,
     client_id INTEGER NOT NULL,              
-    client_destinataire_id INTEGER,            -- refa manao transfert iany
+    client_destinataire_id INTEGER,            
     montant DECIMAL(15,2) NOT NULL,
     frais_applique DECIMAL(15,2) NOT NULL DEFAULT 0,
-    montant_total DECIMAL(15,2) NOT NULL,      -- montant + frais
+    montant_total DECIMAL(15,2) NOT NULL,      
     solde_avant DECIMAL(15,2) NOT NULL,
     solde_apres DECIMAL(15,2) NOT NULL,
     statut VARCHAR(20) NOT NULL DEFAULT 'reussie',
@@ -54,13 +53,30 @@ CREATE TABLE operation (
     FOREIGN KEY (client_destinataire_id) REFERENCES client(id) ON DELETE SET NULL
 );
 
+CREATE VIEW vue_situation_gains AS
+SELECT 
+    t.code AS code_operation,
+    t.libelle AS type_operation,
+    COALESCE(SUM(o.frais_applique), 0) AS total_gains,
+    COUNT(o.id) AS nombre_operations
+FROM type_operation t
+LEFT JOIN operation o ON t.id = o.type_operation_id AND o.statut = 'reussie'
+WHERE t.code IN ('RETRAIT', 'TRANSFERT')
+GROUP BY t.id;
 
+CREATE VIEW vue_situation_comptes AS
+SELECT 
+    c.id,
+    c.nom,
+    c.numero_telephone,
+    c.solde,
+    c.status,
+    COUNT(o.id) AS total_operations_effectuees
+FROM client c
+LEFT JOIN operation o ON c.id = o.client_id AND o.statut = 'reussie'
+GROUP BY c.id;
 
-
-
-
-
-
+INSERT INTO admin (nom, pwd) VALUES ('admin', 'admin123');
 
 INSERT INTO type_operation (code, libelle) VALUES
 ('DEPOT', 'Dépôt'),
@@ -71,23 +87,33 @@ INSERT INTO prefixe_operateur (prefixe, actif) VALUES
 ('033', 1),
 ('037', 1);
 
-INSERT INTO bareme_frais (type_operation_id, montant_min, montant_max, frais, actif)
-SELECT id, 100,      1000,     50,   1 FROM type_operation
-UNION ALL
-SELECT id, 1001,     5000,     50,   1 FROM type_operation
-UNION ALL
-SELECT id, 5001,     10000,    100,  1 FROM type_operation
-UNION ALL
-SELECT id, 10001,    25000,    200,  1 FROM type_operation
-UNION ALL
-SELECT id, 25001,    50000,    400,  1 FROM type_operation
-UNION ALL
-SELECT id, 50001,    100000,   800,  1 FROM type_operation
-UNION ALL
-SELECT id, 100001,   250000,   1500, 1 FROM type_operation
-UNION ALL
-SELECT id, 250001,   500000,   1500, 1 FROM type_operation
-UNION ALL
-SELECT id, 500001,   1000000,  2500, 1 FROM type_operation
-UNION ALL
-SELECT id, 1000001,  2000000,  3000, 1 FROM type_operation;
+INSERT INTO bareme_frais (type_operation_id, montant_min, montant_max, frais)
+SELECT id, 0, 2000000, 0 FROM type_operation WHERE code = 'DEPOT';
+
+INSERT INTO bareme_frais (type_operation_id, montant_min, montant_max, frais)
+SELECT id, 100,      1000,     50   FROM type_operation WHERE code = 'RETRAIT' UNION ALL
+SELECT id, 1001,     5000,     50   FROM type_operation WHERE code = 'RETRAIT' UNION ALL
+SELECT id, 5001,     10000,    100  FROM type_operation WHERE code = 'RETRAIT' UNION ALL
+SELECT id, 10001,    25000,    200  FROM type_operation WHERE code = 'RETRAIT' UNION ALL
+SELECT id, 25001,    50000,    400  FROM type_operation WHERE code = 'RETRAIT' UNION ALL
+SELECT id, 50001,    100000,   800  FROM type_operation WHERE code = 'RETRAIT' UNION ALL
+SELECT id, 100001,   250000,   1500 FROM type_operation WHERE code = 'RETRAIT' UNION ALL
+SELECT id, 250001,   500000,   1500 FROM type_operation WHERE code = 'RETRAIT' UNION ALL
+SELECT id, 500001,   1000000,  2500 FROM type_operation WHERE code = 'RETRAIT' UNION ALL
+SELECT id, 1000001,  2000000,  3000 FROM type_operation WHERE code = 'RETRAIT';
+
+INSERT INTO bareme_frais (type_operation_id, montant_min, montant_max, frais)
+SELECT id, 100,      1000,     50   FROM type_operation WHERE code = 'TRANSFERT' UNION ALL
+SELECT id, 1001,     5000,     50   FROM type_operation WHERE code = 'TRANSFERT' UNION ALL
+SELECT id, 5001,     10000,    100  FROM type_operation WHERE code = 'TRANSFERT' UNION ALL
+SELECT id, 10001,    25000,    200  FROM type_operation WHERE code = 'TRANSFERT' UNION ALL
+SELECT id, 25001,    50000,    400  FROM type_operation WHERE code = 'TRANSFERT' UNION ALL
+SELECT id, 50001,    100000,   800  FROM type_operation WHERE code = 'TRANSFERT' UNION ALL
+SELECT id, 100001,   250000,   1500 FROM type_operation WHERE code = 'TRANSFERT' UNION ALL
+SELECT id, 250001,   500000,   1500 FROM type_operation WHERE code = 'TRANSFERT' UNION ALL
+SELECT id, 500001,   1000000,  2500 FROM type_operation WHERE code = 'TRANSFERT' UNION ALL
+SELECT id, 1000001,  2000000,  3000 FROM type_operation WHERE code = 'TRANSFERT';
+
+INSERT INTO client (nom, numero_telephone, solde, status) VALUES 
+('Jean Rabe', '0331234567', 50000.00, 'actif'),
+('Marie Ranaivo', '0377654321', 10000.00, 'actif');

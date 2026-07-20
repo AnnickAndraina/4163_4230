@@ -13,3 +13,7 @@ in APPPATH/Controllers/ConnexionController.php on line 11.
 10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
 11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
 12 SYSTEMPATH/rewrite.php(44): require_once('/Users/airs/Desktop/4163_4230/public/index.php')
+CRITICAL - 2026-07-20 07:22:57 --> ErrorException: Allowed memory size of 134217728 bytes exhausted (tried to allocate 262144 bytes)
+[Method: POST, Route: connexion/login]
+in SYSTEMPATH/Config/BaseConfig.php on line 261.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
