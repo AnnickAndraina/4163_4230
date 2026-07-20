@@ -61,7 +61,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="#"><i class="bi bi-wallet2 me-2"></i>M-Money</a>
+        <a class="navbar-brand fw-bold" href="#"><i class="bi bi-wallet2 me-2"></i>Mobile-Money</a>
         <a href="<?= base_url('/') ?>" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Déconnexion</a>
     </div>
 </nav>
