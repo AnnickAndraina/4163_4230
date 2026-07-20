@@ -12,8 +12,8 @@
         <div class="col-md-8">
             
             <div class="card p-4 shadow-sm mb-4">
-                <h2>Bienvenue, <?= esc($client['numero_telephone']) ?></h2>
-                <h4 class="text-success mt-2">Mon Solde actuel : <?= esc($client['solde']) ?> Ar</h4>
+                <h2>Bienvenue, <?= esc($client['nom']) ?></h2>
+                <h4 class="text-success mt-2">Votre Solde actuel : <?= esc($client['solde']) ?> Ar</h4>
                 <div class="mt-3">
                     <a href="<?= base_url('/') ?>" class="btn btn-sm btn-secondary">Déconnexion</a>
                 </div>

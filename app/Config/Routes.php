@@ -14,3 +14,9 @@ $routes->get('home', 'ConnexionController::home');
 $routes->post('client/depot', 'ConnexionController::depot');
 $routes->post('client/retrait', 'ConnexionController::retrait');
 $routes->post('client/transfert', 'ConnexionController::transfert');
+
+$routes->get('admin/dashboard', 'AdminController::dashboard');
+$routes->post('admin/prefixe/add', 'AdminController::addPrefixe');
+$routes->get('admin/prefixe/toggle/(:num)', 'AdminController::togglePrefixe/$1');
+$routes->post('admin/bareme/add', 'AdminController::addBareme');
+$routes->get('admin/logout', 'AdminController::logout');

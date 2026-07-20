@@ -18,7 +18,7 @@
                         <?= csrf_field() ?>
                         <div class="mb-3">
                             <label for="telephone" class="form-label">Numéro de téléphone</label>
-                            <input type="text" name="telephone" id="telephone" class="form-control" required>
+                            <input type="text" name="telephone" id="telephone" class="form-control" value="0331234567" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Accéder au compte</button>
                     </form>
