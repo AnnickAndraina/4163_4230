@@ -8,19 +8,19 @@ class ConnexionController extends BaseController
 {
     public function index()
     {
-        return view('login');[cite: 1]
+        return view('login');
     }
 
     public function login()
     {
-        $telephone = $this->request->getPost('telephone');[cite: 1]
+        $telephone = $this->request->getPost('telephone');
 
-        $model = new ClientModel();[cite: 1]
-        $client = $model->autoLogin($telephone);[cite: 1]
+        $model = new ClientModel();
+        $client = $model->autoLogin($telephone);
 
-        session()->set('client', $client);[cite: 1]
+        session()->set('client', $client);
 
-        echo "Connecté ! Numéro : " . esc($client['telephone']) . " | Solde : " . esc($client['solde']) . " Ar";[cite: 1]
+        echo "Connecté ! Numéro : " . esc($client['telephone']) . " | Solde : " . esc($client['solde']) . " Ar";
     }
 
     public function loginAdmin()
