@@ -7,6 +7,7 @@ use App\Models\TypeOperationModel;
 use App\Models\BaremeFraisModel;
 use App\Models\GainsModel;
 use App\Models\ComptesModel;
+use App\Models\ConfigurationModel;
 
 class AdminController extends BaseController
 {
@@ -28,12 +29,14 @@ class AdminController extends BaseController
         $typeModel    = new TypeOperationModel();
         $gainsModel   = new GainsModel();
         $comptesModel = new ComptesModel();
+        $configModel  = new ConfigurationModel();
 
         return view('admin_dashboard', [
             'prefixes' => $prefixeModel->getAll(),
             'types'    => $typeModel->findAll(),
             'gains'    => $gainsModel->getSituation(),
             'comptes'  => $comptesModel->getSituation(),
+            'commission' => $configModel->getCommission(),
         ]);
     }
 
@@ -118,6 +121,17 @@ class AdminController extends BaseController
         );
 
         return redirect()->to('admin/bareme/type/' . $typeId);
+    }
+
+    public function updateCommission()
+    {
+        if ($redirect = $this->checkAuth()) return $redirect;
+
+        $pourcentage = $this->request->getPost('commission_autre_operateur');
+        $configModel = new ConfigurationModel();
+        $configModel->updateCommission($pourcentage);
+
+        return redirect()->to('admin/dashboard');
     }
 
     public function logout()

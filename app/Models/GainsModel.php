@@ -11,6 +11,21 @@ class GainsModel extends Model
 
     public function getSituation()
     {
-        return $this->findAll();
+        $data = $this->findAll();
+
+        $result = [
+            'local' => [],
+            'externe' => []
+        ];
+
+        foreach ($data as $row) {
+            if ($row['type_operateur'] === 'LOCAL') {
+                $result['local'][] = $row;
+            } elseif ($row['type_operateur'] === 'EXTERNE') {
+                $result['externe'][] = $row;
+            }
+        }
+
+        return $result;
     }
 }

@@ -25,7 +25,31 @@
 <div class="container mb-5">
 
     <!-- ========================================= -->
-    <!-- SECTION 1 : Préfixes opérateurs -->
+    <!-- SECTION 1 : Configuration Commission -->
+    <!-- ========================================= -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white">
+            <strong>Commission pour transferts vers autres opérateurs</strong>
+        </div>
+        <div class="card-body">
+            <form action="<?= base_url('admin/update-commission') ?>" method="post">
+                <?= csrf_field() ?>
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <label class="form-label">Pourcentage de commission (%)</label>
+                        <input type="number" step="0.01" name="commission_autre_operateur" class="form-control" value="<?= $commission ?>" required>
+                        <small class="text-muted">Commission calculée sur le montant (hors frais)</small>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-danger w-100 mt-4">Mettre à jour</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- SECTION 2 : Préfixes opérateurs -->
     <!-- ========================================= -->
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -121,18 +145,50 @@
             <strong>Situation des gains (frais collectés)</strong>
         </div>
         <div class="card-body">
-            <div class="row text-center">
-                <?php foreach ($gains as $g): ?>
-                    <div class="col-md-6">
-                        <div class="border rounded p-3 mb-2">
-                            <div class="text-muted small"><?= esc($g['type_operation']) ?></div>
-                            <div class="fs-4 fw-bold text-danger">
-                                <?= number_format($g['total_gains'], 0, ',', ' ') ?> Ar
+            <!-- Opérateurs locaux -->
+            <h6 class="fw-bold mb-3 text-primary">Opérateurs locaux</h6>
+            <div class="row text-center mb-4">
+                <?php if (!empty($gains['local'])): ?>
+                    <?php foreach ($gains['local'] as $g): ?>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 mb-2">
+                                <div class="text-muted small"><?= esc($g['type_operation']) ?></div>
+                                <div class="fs-4 fw-bold text-danger">
+                                    <?= number_format($g['total_gains'], 0, ',', ' ') ?> Ar
+                                </div>
+                                <div class="text-muted small"><?= $g['nombre_operations'] ?> opération(s)</div>
                             </div>
-                            <div class="text-muted small"><?= $g['nombre_operations'] ?> opération(s)</div>
                         </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="col-12">
+                        <p class="text-muted">Aucun gain pour les opérateurs locaux</p>
                     </div>
-                <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+
+            <hr>
+
+            <!-- Autres opérateurs -->
+            <h6 class="fw-bold mb-3 text-warning">Autres opérateurs</h6>
+            <div class="row text-center">
+                <?php if (!empty($gains['externe'])): ?>
+                    <?php foreach ($gains['externe'] as $g): ?>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 mb-2">
+                                <div class="text-muted small"><?= esc($g['type_operation']) ?></div>
+                                <div class="fs-4 fw-bold text-danger">
+                                    <?= number_format($g['total_gains'], 0, ',', ' ') ?> Ar
+                                </div>
+                                <div class="text-muted small"><?= $g['nombre_operations'] ?> opération(s)</div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="col-12">
+                        <p class="text-muted">Aucun gain pour les autres opérateurs</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
