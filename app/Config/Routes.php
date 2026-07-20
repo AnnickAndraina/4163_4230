@@ -7,3 +7,5 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'ConnexionController::index');
 $routes->post('connexion/login', 'ConnexionController::login');
+
+$routes->post('connexion/loginAdmin', 'ConnexionController::loginAdmin');
