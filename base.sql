@@ -14,9 +14,11 @@ CREATE TABLE client (
     status VARCHAR(20) NOT NULL DEFAULT 'actif'
 );
 
-CREATE TABLE prefixe_operateur(
+CREATE TABLE operateur(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    libelle VARCHAR(100) NOT NULL,
     prefixe VARCHAR(5) NOT NULL UNIQUE,
+    type VARCHAR(20) NOT NULL CHECK(type IN ('LOCAL','EXTERNE')),
     actif INTEGER NOT NULL DEFAULT 1
 );
 
@@ -24,6 +26,11 @@ CREATE TABLE type_operation (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     code VARCHAR(20) NOT NULL UNIQUE,   
     libelle VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE configuration(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    commission_autre_operateur DECIMAL(5,2) NOT NULL
 );
 
 CREATE TABLE bareme_frais(
@@ -40,7 +47,9 @@ CREATE TABLE operation (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type_operation_id INTEGER NOT NULL,
     client_id INTEGER NOT NULL,              
-    client_destinataire_id INTEGER,            
+    client_destinataire_id INTEGER,
+    operateur_destination_id INTEGER,
+    commission DECIMAL(15,2) NOT NULL DEFAULT 0,            
     montant DECIMAL(15,2) NOT NULL,
     frais_applique DECIMAL(15,2) NOT NULL DEFAULT 0,
     montant_total DECIMAL(15,2) NOT NULL,      
@@ -49,6 +58,7 @@ CREATE TABLE operation (
     statut VARCHAR(20) NOT NULL DEFAULT 'reussie',
     date_operation DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (type_operation_id) REFERENCES type_operation(id) ON DELETE CASCADE,
+    FOREIGN KEY (operateur_destination_id) REFERENCES operateur(id),
     FOREIGN KEY (client_id) REFERENCES client(id) ON DELETE CASCADE,
     FOREIGN KEY (client_destinataire_id) REFERENCES client(id) ON DELETE SET NULL
 );
@@ -83,9 +93,18 @@ INSERT INTO type_operation (code, libelle) VALUES
 ('RETRAIT', 'Retrait'),
 ('TRANSFERT', 'Transfert');
 
-INSERT INTO prefixe_operateur (prefixe, actif) VALUES
-('033', 1),
-('037', 1);
+INSERT INTO configuration(commission_autre_operateur)
+VALUES (1.00);
+
+INSERT INTO operateur(libelle,prefixe,type) VALUES
+('MVola','033','LOCAL'),
+('MVola','037','LOCAL'),
+
+('Orange Money','032','EXTERNE'),
+('Orange Money','031','EXTERNE'),
+
+('Airtel Money','034','EXTERNE');
+
 
 INSERT INTO bareme_frais (type_operation_id, montant_min, montant_max, frais)
 SELECT id, 0, 2000000, 0 FROM type_operation WHERE code = 'DEPOT';
