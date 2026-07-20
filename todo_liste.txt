@@ -1,0 +1,36 @@
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL DEFAULT 'client',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE ressources (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom VARCHAR(255) NOT NULL,
+    type VARCHAR(255) NOT NULL,
+    capacite INTEGER NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE creneaux (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ressource_id INTEGER NOT NULL,
+    date_debut DATETIME NOT NULL,
+    date_fin DATETIME NOT NULL,
+    places_dispo INTEGER NOT NULL,
+    actif BOOLEAN DEFAULT 1,
+    FOREIGN KEY (ressource_id) REFERENCES ressources(id)
+);
+
+CREATE TABLE reservations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    creneau_id INTEGER NOT NULL,
+    status VARCHAR(50) DEFAULT 'en_attente',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (creneau_id) REFERENCES creneaux(id)
+);
