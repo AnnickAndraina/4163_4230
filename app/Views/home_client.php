@@ -182,7 +182,7 @@
                     <div class="mb-3">
                         <label class="form-label small fw-medium text-muted">Montant à déposer (Ar)</label>
                         <div class="input-group">
-                            <input type="number" name="montant" class="form-control form-control-lg" placeholder="0.00" min="1" required>
+                            <input type="number" name="montant" class="form-control form-control-lg" placeholder="0.00" min="1" step="any" required>
                             <span class="input-group-text bg-light fw-bold">Ar</span>
                         </div>
                     </div>
@@ -210,7 +210,7 @@
                     <div class="mb-3">
                         <label class="form-label small fw-medium text-muted">Montant à retirer (Ar)</label>
                         <div class="input-group">
-                            <input type="number" name="montant" class="form-control form-control-lg" placeholder="0.00" min="1" max="<?= $client['solde'] ?>" required>
+                            <input type="number" name="montant" class="form-control form-control-lg" placeholder="0.00" min="1" max="<?= $client['solde'] ?>" step="any" required>
                             <span class="input-group-text bg-light fw-bold">Ar</span>
                         </div>
                         <small class="text-muted mt-1 d-block">Solde max disponible : <?= number_format($client['solde'], 0, ',', ' ') ?> Ar</small>
@@ -247,7 +247,7 @@
                     <div class="mb-3">
                         <label class="form-label small fw-medium text-muted">Montant total à envoyer (Ar)</label>
                         <div class="input-group">
-                            <input type="number" name="montant" class="form-control form-control-lg" placeholder="0.00" min="1" required>
+                            <input type="number" name="montant" class="form-control form-control-lg" placeholder="0.00" min="1" step="any" required>
                             <span class="input-group-text bg-light fw-bold">Ar</span>
                         </div>
                     </div>
