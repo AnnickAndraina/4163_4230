@@ -64,18 +64,22 @@ CREATE TABLE operation (
 );
 
 CREATE VIEW vue_situation_gains AS
-SELECT 
+SELECT
     t.code AS code_operation,
     t.libelle AS type_operation,
+    op.type AS type_operateur,
     COALESCE(SUM(o.frais_applique), 0) AS total_gains,
     COUNT(o.id) AS nombre_operations
 FROM type_operation t
-LEFT JOIN operation o ON t.id = o.type_operation_id AND o.statut = 'reussie'
+CROSS JOIN operateur op
+LEFT JOIN operation o ON t.id = o.type_operation_id
+    AND o.operateur_destination_id = op.id
+    AND o.statut = 'reussie'
 WHERE t.code IN ('RETRAIT', 'TRANSFERT')
-GROUP BY t.id;
+GROUP BY t.id, op.id;
 
 CREATE VIEW vue_situation_comptes AS
-SELECT 
+SELECT
     c.id,
     c.nom,
     c.numero_telephone,
@@ -85,6 +89,20 @@ SELECT
 FROM client c
 LEFT JOIN operation o ON c.id = o.client_id AND o.statut = 'reussie'
 GROUP BY c.id;
+
+CREATE VIEW vue_situation_montants_operateurs AS
+SELECT
+    o.id AS operateur_id,
+    o.libelle AS operateur_libelle,
+    o.type AS type_operateur,
+    o.prefixe,
+    COALESCE(SUM(op.montant), 0) AS total_montant_a_envoyer,
+    COUNT(op.id) AS nombre_transferts
+FROM operateur o
+LEFT JOIN operation op ON o.id = op.operateur_destination_id
+    AND op.type_operation_id = (SELECT id FROM type_operation WHERE code = 'TRANSFERT')
+    AND op.statut = 'reussie'
+GROUP BY o.id;
 
 INSERT INTO admin (nom, pwd) VALUES ('admin', 'admin123');
 
