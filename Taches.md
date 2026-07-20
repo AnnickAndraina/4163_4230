@@ -1,3 +1,91 @@
+# ( 4163 ) Login 
+## 1. Analyse des besoins
+- [ ] Identifier les données nécessaires au fonctionnement de l'application.
+- [ ] Déterminer les entités principales.
+- [ ] Définir les relations entre les entités.
+- [ ] Vérifier les règles de gestion avec l'équipe.
+
+---
+
+## 2. Création de la base de données
+- [ ] Créer la base de données `mobile_money`.
+
+---
+
+## 3. Création des tables
+
+### Administration
+- [ ] Créer la table `admin`
+    - id
+    - nom
+    - pwd
+
+### Clients
+- [ ] Créer la table `client`
+    - id
+    - nom
+    - numero_telephone
+
+### Préfixes opérateurs
+- [ ] Créer la table `prefixe_operateur`
+    - id
+    - prefixe
+    - libelle
+    - actif
+
+### Types d'opérations
+- [ ] Créer la table `type_operation`
+    - id
+    - code
+    - libelle
+
+### Barème des frais
+- [ ] Créer la table `bareme_frais`
+    - id
+    - type_operation_id
+    - montant_min
+    - montant_max
+    - frais
+    - actif
+
+---
+
+## 4. Relations entre les tables
+- [ ] Ajouter la clé étrangère entre `bareme_frais` et `type_operation`.
+- [ ] Vérifier l'intégrité référentielle.
+- [ ] Définir les règles ON UPDATE et ON DELETE.
+
+---
+
+## 5. Contraintes
+- [ ] Définir les PRIMARY KEY.
+- [ ] Définir les FOREIGN KEY.
+- [ ] Ajouter les contraintes NOT NULL.
+- [ ] Ajouter les contraintes UNIQUE si nécessaire.
+- [ ] Définir les valeurs par défaut.
+- [ ] Vérifier les types de données.
+
+---
+
+## 6. Jeu de données
+- [ ] Insérer un administrateur de test.
+- [ ] Insérer des clients de test.
+- [ ] Insérer les préfixes des opérateurs.
+- [ ] Insérer les différents types d'opérations.
+- [ ] Insérer les barèmes de frais.
+
+---
+
+## 7. Validation
+- [ ] Tester toutes les relations entre les tables.
+- [ ] Vérifier la cohérence des données.
+- [ ] Corriger les éventuelles anomalies.
+
+---
+
+
+
+
 # ( 4230 ) Login 
     - Login user/admin:
         - Model
