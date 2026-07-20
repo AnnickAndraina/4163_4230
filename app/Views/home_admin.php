@@ -6,38 +6,7 @@
     <title>Espace Administration - Mobile Money</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-        .balance-card {
-            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-            color: white;
-            border: none;
-            border-radius: 16px;
-        }
-        .action-card {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-        }
-        .action-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        .icon-box {
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-        .badge-deposit { background-color: #e8f5e9; color: #2e7d32; }
-        .badge-withdrawal { background-color: #ffebee; color: #c62828; }
-        .badge-transfer { background-color: #e3f2fd; color: #1565c0; }
-        .badge-admin { background-color: #f3e5f5; color: #7b1fa2; }
-        .op-row { vertical-align: middle; }
-    </style>
+    <link rel="stylesheet" href="<?= base_url('style.css') ?>">
 </head>
 <body class="bg-light">
 
@@ -73,7 +42,7 @@
         <!-- Colonne Gauche : Résumé & Actions Administrateur -->
         <div class="col-lg-4">
             <!-- Carte Récapitulative / Total Commissions -->
-            <div class="card balance-card p-4 shadow-sm mb-4">
+            <div class="card balance-card-admin p-4 shadow-sm mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-white-50 small text-uppercase tracking-wider">Total Frais Générés</span>
                     <i class="bi bi-pie-chart text-white-50 fs-5"></i>

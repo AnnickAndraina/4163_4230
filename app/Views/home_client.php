@@ -6,16 +6,7 @@
     <title>Mon Espace - Mobile Money</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-        .balance-card { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; border: none; border-radius: 16px; }
-        .action-card { border: 1px solid #e9ecef; border-radius: 12px; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
-        .action-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .icon-box { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .badge-deposit { background-color: #e8f5e9; color: #2e7d32; }
-        .badge-withdrawal { background-color: #ffebee; color: #c62828; }
-        .badge-transfer { background-color: #e3f2fd; color: #1565c0; }
-        .op-row { vertical-align: middle; }
-    </style>
+    <link rel="stylesheet" href="<?= base_url('style.css') ?>">
 </head>
 <body class="bg-light">
 
@@ -29,7 +20,7 @@
 <div class="container pb-5">
     <div class="row g-4">
         <div class="col-lg-4">
-            <div class="card balance-card p-4 shadow-sm mb-4">
+            <div class="card balance-card-client p-4 shadow-sm mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-white-50 small text-uppercase tracking-wider">Solde Disponible</span>
                     <i class="bi bi-shield-check text-white-50 fs-5"></i>
@@ -182,7 +173,7 @@
                     <div class="mb-3">
                         <label class="form-label small fw-medium text-muted">Montant à déposer (Ar)</label>
                         <div class="input-group">
-                            <input type="number" name="montant" class="form-control form-control-lg" placeholder="0.00" min="1" step="any" required>
+                            <input type="number" name="montant" class="form-control form-control-lg" placeholder="0.00" min="1" required>
                             <span class="input-group-text bg-light fw-bold">Ar</span>
                         </div>
                     </div>
@@ -210,7 +201,7 @@
                     <div class="mb-3">
                         <label class="form-label small fw-medium text-muted">Montant à retirer (Ar)</label>
                         <div class="input-group">
-                            <input type="number" name="montant" class="form-control form-control-lg" placeholder="0.00" min="1" max="<?= $client['solde'] ?>" step="any" required>
+                            <input type="number" name="montant" class="form-control form-control-lg" placeholder="0.00" min="1" max="<?= $client['solde'] ?>" required>
                             <span class="input-group-text bg-light fw-bold">Ar</span>
                         </div>
                         <small class="text-muted mt-1 d-block">Solde max disponible : <?= number_format($client['solde'], 0, ',', ' ') ?> Ar</small>
@@ -247,7 +238,7 @@
                     <div class="mb-3">
                         <label class="form-label small fw-medium text-muted">Montant total à envoyer (Ar)</label>
                         <div class="input-group">
-                            <input type="number" name="montant" class="form-control form-control-lg" placeholder="0.00" min="1" step="any" required>
+                            <input type="number" name="montant" class="form-control form-control-lg" placeholder="0.00" min="1" required>
                             <span class="input-group-text bg-light fw-bold">Ar</span>
                         </div>
                     </div>

@@ -1,0 +1,205 @@
+/* ========================================
+   Mobile Money - Styles CSS
+   ======================================== */
+
+/* ========================================
+   Cartes de solde (balance-card)
+   ======================================== */
+.balance-card-client {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    border: none;
+    border-radius: 16px;
+}
+
+.balance-card-admin {
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    color: white;
+    border: none;
+    border-radius: 16px;
+}
+
+/* ========================================
+   Cartes d'action (action-card)
+   ======================================== */
+.action-card {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* ========================================
+   Boîtes d'icônes (icon-box)
+   ======================================== */
+.icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+/* ========================================
+   Badges de couleurs
+   ======================================== */
+.badge-deposit {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.badge-withdrawal {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.badge-transfer {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.badge-admin {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+}
+
+/* ========================================
+   Lignes de tableau (op-row)
+   ======================================== */
+.op-row {
+    vertical-align: middle;
+}
+
+/* ========================================
+   Page de connexion
+   ======================================== */
+.login-body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.login-card {
+    border: none;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(30, 60, 114, 0.08);
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.brand-header {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    padding: 40px 30px;
+    text-align: center;
+    transition: background 0.4s ease;
+}
+
+.brand-icon {
+    width: 64px;
+    height: 64px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 16px auto;
+    backdrop-filter: blur(4px);
+}
+
+.form-control-lg {
+    border-radius: 12px;
+    font-size: 1rem;
+    padding: 12px 16px;
+    border-color: #e2e8f0;
+}
+
+.form-control-lg:focus {
+    border-color: #2a5298;
+    box-shadow: 0 0 0 4px rgba(42, 82, 152, 0.1);
+}
+
+.input-group-text-custom {
+    background-color: transparent;
+    border-color: #e2e8f0;
+    border-radius: 12px 0 0 12px !important;
+    color: #94a3b8;
+    padding-left: 16px;
+}
+
+.has-icon .form-control-lg {
+    border-radius: 0 12px 12px 0 !important;
+}
+
+.btn-custom-primary {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border: none;
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-custom-primary:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(42, 82, 152, 0.2);
+    color: white;
+}
+
+.btn-custom-danger {
+    background: linear-gradient(135deg, #cb2d3e 0%, #ef473a 100%);
+    border: none;
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-custom-danger:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 71, 58, 0.2);
+    color: white;
+}
+
+.alert-custom {
+    border-radius: 12px;
+    border: none;
+    font-size: 0.875rem;
+}
+
+.toggle-link {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.toggle-link:hover {
+    color: #1e3c72;
+}
+
+/* ========================================
+   Cartes de barème (bareme-card)
+   ======================================== */
+.bareme-card {
+    transition: 0.15s;
+}
+
+.bareme-card:hover {
+    background-color: #f8f9fa;
+    border-color: #BA1A1A !important;
+}

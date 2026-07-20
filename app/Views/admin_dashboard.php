@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <title>Espace Opérateur - Mobile Money</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <style>
-        .bareme-card { transition: 0.15s; }
-        .bareme-card:hover { background-color: #f8f9fa; border-color: #BA1A1A !important; }
-    </style>
+    <link rel="stylesheet" href="<?= base_url('style.css') ?>">
 </head>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
