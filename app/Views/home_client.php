@@ -41,15 +41,32 @@
 </head>
 <body class="bg-light">
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            
-            <div class="card p-4 shadow-sm mb-4">
-                <h2>Bienvenue, <?= esc($client['numero_telephone']) ?></h2>
-                <h4 class="text-success mt-2">Mon Solde actuel : <?= esc($client['solde']) ?> Ar</h4>
-                <div class="mt-3">
-                    <a href="<?= base_url('/') ?>" class="btn btn-sm btn-secondary">Déconnexion</a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#"><i class="bi bi-wallet2 me-2"></i>M-Money</a>
+        <a href="<?= base_url('/') ?>" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Déconnexion</a>
+    </div>
+</nav>
+
+<div class="container pb-5">
+    <div class="row g-4">
+        
+        <div class="col-lg-4">
+            <div class="card balance-card p-4 shadow-sm mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-white-50 small text-uppercase tracking-wider">Solde Disponible</span>
+                    <i class="bi bi-shield-check text-white-50 fs-5"></i>
+                </div>
+                <h2 class="display-6 fw-bold mb-2"><?= number_format($client['solde'], 2, ',', ' ') ?> <span class="fs-4">Ar</span></h2>
+                <hr class="text-white-50 my-3">
+                <div class="d-flex align-items-center">
+                    <div class="bg-white bg-opacity-20 rounded-circle p-2 me-3">
+                        <i class="bi bi-person text-white fs-5"></i>
+                    </div>
+                    <div>
+                        <small class="text-white-50 d-block">Compte Client</small>
+                        <span class="fw-medium"><?= esc($client['numero_telephone']) ?></span>
+                    </div>
                 </div>
             </div>
 
