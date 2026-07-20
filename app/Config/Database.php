@@ -63,11 +63,11 @@ class Database extends Config
             return;
         }
 
-        // 1. Définir le chemin absolu vers la racine pour base.db
-        $dbPath = ROOTPATH . 'base.db';
+        // 1. Définir le chemin absolu vers writable/database.db
+        $dbPath = ROOTPATH . 'writable/database.db';
         $this->default['database'] = $dbPath;
 
-        // 2. Si le fichier base.db n'existe pas, on le crée et l'initialise avec l'extension native PHP
+        // 2. Si le fichier database.db n'existe pas, on le crée et l'initialise avec l'extension native PHP
         if (!file_exists($dbPath)) {
             $sqlPath = ROOTPATH . 'base.sql';
 

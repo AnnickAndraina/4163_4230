@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\PrefixeOperateurModel;
+use App\Models\OperateurModel;
 use App\Models\TypeOperationModel;
 use App\Models\BaremeFraisModel;
 use App\Models\GainsModel;
@@ -11,8 +11,6 @@ use App\Models\ConfigurationModel;
 
 class AdminController extends BaseController
 {
-    // Vérifie que l'admin est bien connecté, sinon renvoie vers le login.
-    // Appelé au début de chaque méthode pour éviter la répétition.
     private function checkAuth()
     {
         if (!session()->get('admin_connecte')) {
@@ -25,17 +23,17 @@ class AdminController extends BaseController
     {
         if ($redirect = $this->checkAuth()) return $redirect;
 
-        $prefixeModel = new PrefixeOperateurModel();
-        $typeModel    = new TypeOperationModel();
-        $gainsModel   = new GainsModel();
-        $comptesModel = new ComptesModel();
-        $configModel  = new ConfigurationModel();
+        $operateurModel = new OperateurModel();
+        $typeModel      = new TypeOperationModel();
+        $gainsModel     = new GainsModel();
+        $comptesModel   = new ComptesModel();
+        $configModel    = new ConfigurationModel();
 
         return view('admin_dashboard', [
-            'prefixes' => $prefixeModel->getAll(),
-            'types'    => $typeModel->findAll(),
-            'gains'    => $gainsModel->getSituation(),
-            'comptes'  => $comptesModel->getSituation(),
+            'prefixes'   => $operateurModel->getAll(),
+            'types'      => $typeModel->findAll(),
+            'gains'      => $gainsModel->getSituation(),
+            'comptes'    => $comptesModel->getSituation(),
             'commission' => $configModel->getCommission(),
         ]);
     }
@@ -46,9 +44,11 @@ class AdminController extends BaseController
 
         $prefixe = $this->request->getPost('prefixe');
 
-        $prefixeModel = new PrefixeOperateurModel();
-        $prefixeModel->insert([
+        $operateurModel = new OperateurModel();
+        $operateurModel->insert([
             'prefixe' => $prefixe,
+            'libelle' => 'Opérateur ' . $prefixe,
+            'type'    => 'LOCAL',
             'actif'   => 1,
         ]);
 
@@ -59,12 +59,12 @@ class AdminController extends BaseController
     {
         if ($redirect = $this->checkAuth()) return $redirect;
 
-        $prefixeModel = new PrefixeOperateurModel();
-        $prefixe = $prefixeModel->find($id);
+        $operateurModel = new OperateurModel();
+        $operateur = $operateurModel->find($id);
 
-        if ($prefixe) {
-            $nouvelEtat = $prefixe['actif'] ? 0 : 1;
-            $prefixeModel->toggleActif($id, $nouvelEtat);
+        if ($operateur) {
+            $nouvelEtat = $operateur['actif'] ? 0 : 1;
+            $operateurModel->toggleActif($id, $nouvelEtat);
         }
 
         return redirect()->to('admin/dashboard');

@@ -14,7 +14,7 @@ CREATE TABLE client (
     status VARCHAR(20) NOT NULL DEFAULT 'actif'
 );
 
-CREATE TABLE operateur(
+CREATE TABLE operateur (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     libelle VARCHAR(100) NOT NULL,
     prefixe VARCHAR(5) NOT NULL UNIQUE,
@@ -28,12 +28,12 @@ CREATE TABLE type_operation (
     libelle VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE configuration(
+CREATE TABLE configuration (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     commission_autre_operateur DECIMAL(5,2) NOT NULL
 );
 
-CREATE TABLE bareme_frais(
+CREATE TABLE bareme_frais (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type_operation_id INTEGER NOT NULL,
     montant_min DECIMAL(15,2) NOT NULL,
@@ -111,18 +111,14 @@ INSERT INTO type_operation (code, libelle) VALUES
 ('RETRAIT', 'Retrait'),
 ('TRANSFERT', 'Transfert');
 
-INSERT INTO configuration(commission_autre_operateur)
-VALUES (1.00);
+INSERT INTO configuration (commission_autre_operateur) VALUES (1.00);
 
-INSERT INTO operateur(libelle,prefixe,type) VALUES
-('MVola','033','LOCAL'),
-('MVola','037','LOCAL'),
-
-('Orange Money','032','EXTERNE'),
-('Orange Money','031','EXTERNE'),
-
-('Airtel Money','034','EXTERNE');
-
+INSERT INTO operateur (libelle, prefixe, type, actif) VALUES
+('MVola', '033', 'LOCAL', 1),
+('MVola', '037', 'LOCAL', 1),
+('Orange Money', '032', 'EXTERNE', 1),
+('Orange Money', '031', 'EXTERNE', 1),
+('Airtel Money', '034', 'EXTERNE', 1);
 
 INSERT INTO bareme_frais (type_operation_id, montant_min, montant_max, frais)
 SELECT id, 0, 2000000, 0 FROM type_operation WHERE code = 'DEPOT';

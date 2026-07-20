@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ClientModel;
 use App\Models\OperationModel;
-use App\Models\PrefixeOperateurModel;
+use App\Models\OperateurModel;
 use App\Models\ConfigurationModel;
 
 class ConnexionController extends BaseController
@@ -25,6 +25,7 @@ class ConnexionController extends BaseController
         $values = ['telephone' => $telephoneRaw];
         $errors = ['telephone' => ''];
 
+        // Vérification du nombre de chiffres
         if (strlen($telephone) !== 10 || !ctype_digit($telephone)) {
             $errors['telephone'] = 'Le numéro doit comporter exactement 10 chiffres.';
             return view('login', ['values' => $values, 'errors' => $errors]);
@@ -32,22 +33,33 @@ class ConnexionController extends BaseController
 
         $prefixe = substr($telephone, 0, 3);
 
-        $db = \Config\Database::connect();
-        $prefixeValide = $db->query("SELECT * FROM prefixe_operateur WHERE prefixe = ? AND actif = 1", [$prefixe])->getRow();
+        // Vérifier si le préfixe existe dans la table operateur (local ou externe)
+        $operateurModel = new OperateurModel();
+        $operateur = $operateurModel->where('prefixe', $prefixe)->where('actif', 1)->first();
 
-        if (!$prefixeValide) {
-            $errors['telephone'] = 'Opérateur non supporté (Préfixe invalide).';
+        if (!$operateur) {
+            $errors['telephone'] = 'Opérateur non supporté (préfixe invalide).';
             return view('login', ['values' => $values, 'errors' => $errors]);
         }
 
+        // Enregistrer le client dans tous les cas (même si externe)
         $model = new ClientModel();
         $client = $model->autoLogin($telephone);
+
+        // Vérifier si c'est un opérateur LOCAL (peut se connecter)
+        if ($operateur['type'] !== 'LOCAL') {
+            $errors['telephone'] = 'Cet opérateur ne permet pas la connexion à l\'application.';
+            // Retourner avec les valeurs pour que l'utilisateur puisse réessayer
+            $values['telephone'] = $telephoneRaw;
+            return view('login', ['values' => $values, 'errors' => $errors]);
+        }
 
         $session = session();
         $session->set('client_id', $client['id']);
         $session->set('client_telephone', $client['numero_telephone']);
         $session->set('client_nom', $client['nom']);
         $session->set('client_solde', $client['solde']);
+        $session->set('client_operateur_id', $operateur['id']);
 
         return redirect()->to('home');
     }
@@ -79,7 +91,7 @@ class ConnexionController extends BaseController
         $operationModel = new OperationModel();
 
         $client = $clientModel->find($session->get('client_id'));
-        
+
         if (!$client) {
             $session->remove('client_id');
             return redirect()->to('/');
@@ -97,8 +109,8 @@ class ConnexionController extends BaseController
             if ($dernierTransfert && strtotime($dernierTransfert['date_operation']) > time() - 60) {
                 $frais = (float)$dernierTransfert['frais_applique'];
                 $montantRecu = (float)$dernierTransfert['montant'];
-                $message = $frais > 0 
-                    ? "Vous avez reçu " . number_format($montantRecu, 0, ',', ' ') . " Ar (frais déduits)." 
+                $message = $frais > 0
+                    ? "Vous avez reçu " . number_format($montantRecu, 0, ',', ' ') . " Ar (frais déduits)."
                     : "Vous avez reçu " . number_format($montantRecu, 0, ',', ' ') . " Ar.";
                 $session->setFlashdata('popup_frais', $message);
             }
@@ -124,21 +136,11 @@ class ConnexionController extends BaseController
         return $bareme ? (float)$bareme->frais : 0.0;
     }
 
-    private function getOperateurGroup($telephone)
+    private function getOperateurByTelephone($telephone)
     {
         $prefixe = substr(str_replace(' ', '', $telephone), 0, 3);
-        if ($prefixe === '033' || $prefixe === '037') {
-            return 'GROUP_33_37';
-        }
-        return $prefixe;
-    }
-
-    private function isLocalOperator($telephone)
-    {
-        $prefixe = substr(str_replace(' ', '', $telephone), 0, 3);
-        $model = new PrefixeOperateurModel();
-        $row = $model->where('prefixe', $prefixe)->where('actif', 1)->first();
-        return $row !== null;
+        $model = new OperateurModel();
+        return $model->where('prefixe', $prefixe)->where('actif', 1)->first();
     }
 
     public function depot()
@@ -248,9 +250,16 @@ class ConnexionController extends BaseController
 
         $clientModel = new ClientModel();
         $operationModel = new OperationModel();
+        $configModel = new ConfigurationModel();
 
         $expediteur = $clientModel->find($session->get('client_id'));
         if (!$expediteur) return redirect()->to('/');
+
+        $expOperateur = $this->getOperateurByTelephone($expediteur['numero_telephone']);
+        if (!$expOperateur) {
+            $session->setFlashdata('popup_frais', "Opérateur de l'expéditeur non reconnu.");
+            return redirect()->to('home');
+        }
 
         $nombreDest = count($destinatairesList);
         $montantParDest = floor($montantTotalInput / $nombreDest);
@@ -258,10 +267,6 @@ class ConnexionController extends BaseController
             $session->setFlashdata('popup_frais', "Montant par destinataire trop faible suite à la division.");
             return redirect()->to('home');
         }
-
-        $expGroup = $this->getOperateurGroup($expediteur['numero_telephone']);
-        $configModel = new ConfigurationModel();
-        $commissionRate = (float)$configModel->getCommission() / 100.0;
 
         $destinatairesData = [];
 
@@ -274,11 +279,11 @@ class ConnexionController extends BaseController
                 $session->setFlashdata('popup_frais', "Vous ne pouvez pas vous transférer de l'argent à vous-même.");
                 return redirect()->to('home');
             }
-            
-            // Validation : Même opérateur uniquement
-            $destGroup = $this->getOperateurGroup($tel);
-            if ($destGroup !== $expGroup) {
-                $session->setFlashdata('popup_frais', "Erreur : L'envoi multiple est autorisé uniquement vers des numéros du même opérateur.");
+
+            // Vérifier si le préfixe existe dans la table operateur (local ou externe)
+            $destOperateur = $this->getOperateurByTelephone($tel);
+            if (!$destOperateur) {
+                $session->setFlashdata('popup_frais', "Opérateur du destinataire non reconnu : " . $tel);
                 return redirect()->to('home');
             }
 
@@ -288,46 +293,66 @@ class ConnexionController extends BaseController
                 return redirect()->to('home');
             }
 
-            $isLocalDest = $this->isLocalOperator($tel);
-            $destinatairesData[] = ['dest' => $dest, 'tel' => $tel, 'isLocal' => $isLocalDest];
+            // MODIFICATION ICI : Comparer par libelle au lieu de id
+            $destinatairesData[] = [
+                'dest'          => $dest,
+                'tel'           => $tel,
+                'operateur'     => $destOperateur,
+                'estLocal'      => ($destOperateur['type'] === 'LOCAL'),
+                'memeOperateur' => ($destOperateur['libelle'] == $expOperateur['libelle'])
+            ];
         }
 
-        $isAllLocal = true;
-        foreach ($destinatairesData as $dData) {
-            if (!$dData['isLocal']) {
-                $isAllLocal = false;
-                break;
+        // Vérification pour envoi multiple : tous les destinataires doivent être du même opérateur que l'expéditeur
+        if ($nombreDest > 1) {
+            foreach ($destinatairesData as $dData) {
+                if (!$dData['memeOperateur']) {
+                    $session->setFlashdata('popup_frais', "L'envoi multiple n'est autorisé que vers des numéros du même opérateur que l'expéditeur.");
+                    return redirect()->to('home');
+                }
             }
         }
 
-        $fraisStandard = $this->getFrais(3, $montantParDest);
-        $fraisRetraitStandard = $this->getFrais(2, $montantParDest);
+        $commissionRate = (float)$configModel->getCommission() / 100.0;
 
-        $commissionInterParDest = 0;
-        if (!$isAllLocal) {
-            $commissionInterParDest = round($montantParDest * $commissionRate, 0);
+        $montantTotalADebiter = 0;
+
+        foreach ($destinatairesData as &$dData) {
+            $dest = $dData['dest'];
+            $memeOperateur = $dData['memeOperateur'];
+
+            // Frais de transfert (type 3) toujours applicables
+            $fraisTransfert = $this->getFrais(3, $montantParDest);
+
+            if ($memeOperateur) {
+                // Même opérateur : pas de commission inter-opérateur
+                $commissionInter = 0;
+                // Frais de retrait (type 2) si l'option est cochée
+                $fraisRetrait = $inclureFrais ? $this->getFrais(2, $montantParDest) : 0;
+                $fraisTotalParDest = $fraisTransfert + $fraisRetrait;
+                $montantRecuParDest = $montantParDest;
+            } else {
+                // Autre opérateur : pas de frais de retrait (même si option cochée)
+                $fraisRetrait = 0;
+                $commissionInter = round($montantParDest * $commissionRate, 0);
+                $fraisTotalParDest = $fraisTransfert + $commissionInter;
+                $montantRecuParDest = $montantParDest; // le destinataire reçoit le montant intégral
+            }
+
+            $montantTotalADebiter += $montantParDest + $fraisTotalParDest;
+
+            // Stocker les données pour l'insertion ultérieure
+            $dData['fraisTransfert'] = $fraisTransfert;
+            $dData['fraisRetrait'] = $fraisRetrait;
+            $dData['commissionInter'] = $commissionInter;
+            $dData['fraisTotalParDest'] = $fraisTotalParDest;
+            $dData['montantRecuParDest'] = $montantRecuParDest;
         }
+        unset($dData);
 
-        // Règle : Pas de frais de retrait pour les autres opérateurs (ici géré par l'alternative inter-opérateur ou l'absence de frais de retrait)
-        $fraisTotalParDest = $isAllLocal ? $fraisStandard : 0;
-        if ($inclureFrais && $isAllLocal) {
-            $fraisTotalParDest = $fraisStandard + $fraisRetraitStandard;
-        }
-
-        if ($isAllLocal) {
-            $montantTotalADebiter = ($montantParDest + $fraisTotalParDest) * $nombreDest;
-        } else {
-            $montantTotalADebiter = ($montantParDest + $commissionInterParDest) * $nombreDest;
-        }
-
-        if ($isAllLocal) {
-            $montantRecuParDest = $montantParDest;
-        } else {
-            $montantRecuParDest = $montantParDest - $commissionInterParDest;
-        }
-
+        // Vérification du solde de l'expéditeur
         if ((float)$expediteur['solde'] < $montantTotalADebiter) {
-            $session->setFlashdata('popup_frais', "Solde insuffisant pour effectuer ce transfert multiple.");
+            $session->setFlashdata('popup_frais', "Solde insuffisant pour effectuer ce transfert.");
             return redirect()->to('home');
         }
 
@@ -335,19 +360,22 @@ class ConnexionController extends BaseController
         $soldeApresExp = $soldeAvantExp - $montantTotalADebiter;
         $clientModel->update($expediteur['id'], ['solde' => $soldeApresExp]);
 
+        // Enregistrement des opérations
         foreach ($destinatairesData as $dData) {
             $dest = $dData['dest'];
             $soldeAvantDest = (float)$dest['solde'];
-            $soldeApresDest = $soldeAvantDest + $montantRecuParDest;
+            $soldeApresDest = $soldeAvantDest + $dData['montantRecuParDest'];
             $clientModel->update($dest['id'], ['solde' => $soldeApresDest]);
 
             $operationModel->insert([
                 'type_operation_id'      => 3,
                 'client_id'              => $expediteur['id'],
                 'client_destinataire_id' => $dest['id'],
+                'operateur_destination_id' => $dData['operateur']['id'],
+                'commission'             => $dData['commissionInter'],
                 'montant'                => $montantParDest,
-                'frais_applique'         => $isAllLocal ? $fraisTotalParDest : $commissionInterParDest,
-                'montant_total'          => $montantParDest + ($isAllLocal ? $fraisTotalParDest : $commissionInterParDest),
+                'frais_applique'         => $dData['fraisTotalParDest'],
+                'montant_total'          => $montantParDest + $dData['fraisTotalParDest'],
                 'solde_avant'            => $soldeAvantExp,
                 'solde_apres'            => $soldeApresExp,
                 'statut'                 => 'reussie',
@@ -357,10 +385,10 @@ class ConnexionController extends BaseController
 
         $session->set('client_solde', $soldeApresExp);
 
-        $msg = $inclureFrais && $isAllLocal
-            ? "Transfert réussi vers " . $nombreDest . " destinataire(s) avec frais de retrait inclus."
-            : "Transfert multiple réussi vers " . $nombreDest . " destinataire(s).";
-
+        $msg = "Transfert réussi vers " . $nombreDest . " destinataire(s).";
+        if ($inclureFrais && $destinatairesData[0]['memeOperateur']) {
+            $msg .= " Frais de retrait inclus.";
+        }
         $session->setFlashdata('popup_frais', $msg);
         return redirect()->to('home');
     }
@@ -372,6 +400,7 @@ class ConnexionController extends BaseController
         $session->remove('client_telephone');
         $session->remove('client_nom');
         $session->remove('client_solde');
+        $session->remove('client_operateur_id');
         return redirect()->to('/');
     }
 }
