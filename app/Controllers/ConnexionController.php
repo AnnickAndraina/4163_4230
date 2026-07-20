@@ -78,6 +78,20 @@ class ConnexionController extends BaseController
         ]);
     }
 
+    private function getFrais($typeOperationId, $montant)
+    {
+        $db = \Config\Database::connect();
+        $bareme = $db->table('bareme_frais')
+            ->where('type_operation_id', $typeOperationId)
+            ->where('actif', 1)
+            ->where('montant_min <=', $montant)
+            ->where('montant_max >=', $montant)
+            ->get()
+            ->getRow();
+
+        return $bareme ? (float)$bareme->frais : 0.0;
+    }
+
     public function depot()
     {
         $montant = (float) $this->request->getPost('montant');
@@ -85,9 +99,11 @@ class ConnexionController extends BaseController
         $operationModel = new OperationModel();
 
         $client = $clientModel->find(session()->get('client_id'));
+        $frais = $this->getFrais(1, $montant);
+        $montantTotal = $montant + $frais;
 
         $soldeAvant = $client['solde'];
-        $soldeApres = $soldeAvant + $montant;
+        $soldeApres = $soldeAvant + $montantTotal;
 
         $clientModel->update($client['id'], ['solde' => $soldeApres]);
 
@@ -95,8 +111,8 @@ class ConnexionController extends BaseController
             'type_operation_id' => 1,
             'client_id'         => $client['id'],
             'montant'           => $montant,
-            'frais_applique'    => 0,
-            'montant_total'     => $montant,
+            'frais_applique'    => $frais,
+            'montant_total'     => $montantTotal,
             'solde_avant'       => $soldeAvant,
             'solde_apres'       => $soldeApres,
             'statut'            => 'reussie',
@@ -113,10 +129,12 @@ class ConnexionController extends BaseController
         $operationModel = new OperationModel();
 
         $client = $clientModel->find(session()->get('client_id'));
+        $frais = $this->getFrais(2, $montant);
+        $montantTotal = $montant + $frais;
 
-        if ($client['solde'] >= $montant) {
+        if ($client['solde'] >= $montantTotal) {
             $soldeAvant = $client['solde'];
-            $soldeApres = $soldeAvant - $montant;
+            $soldeApres = $soldeAvant - $montantTotal;
 
             $clientModel->update($client['id'], ['solde' => $soldeApres]);
 
@@ -124,8 +142,8 @@ class ConnexionController extends BaseController
                 'type_operation_id' => 2,
                 'client_id'         => $client['id'],
                 'montant'           => $montant,
-                'frais_applique'    => 0,
-                'montant_total'     => $montant,
+                'frais_applique'    => $frais,
+                'montant_total'     => $montantTotal,
                 'solde_avant'       => $soldeAvant,
                 'solde_apres'       => $soldeApres,
                 'statut'            => 'reussie',
@@ -148,11 +166,13 @@ class ConnexionController extends BaseController
 
         $expediteur = $clientModel->find(session()->get('client_id'));
         $destinataire = $clientModel->where('numero_telephone', $destinataireTel)->first();
+        $frais = $this->getFrais(3, $montant);
+        $montantTotal = $montant + $frais;
 
-        if ($destinataire && $expediteur['solde'] >= $montant) {
+        if ($destinataire && $expediteur['solde'] >= $montantTotal) {
             
             $soldeAvantExp = $expediteur['solde'];
-            $soldeApresExp = $soldeAvantExp - $montant;
+            $soldeApresExp = $soldeAvantExp - $montantTotal;
             $clientModel->update($expediteur['id'], ['solde' => $soldeApresExp]);
 
             $soldeAvantDest = $destinataire['solde'];
@@ -164,8 +184,8 @@ class ConnexionController extends BaseController
                 'client_id'                => $expediteur['id'],
                 'client_destinataire_id'   => $destinataire['id'],
                 'montant'                  => $montant,
-                'frais_applique'           => 0,
-                'montant_total'            => $montant,
+                'frais_applique'           => $frais,
+                'montant_total'            => $montantTotal,
                 'solde_avant'              => $soldeAvantExp,
                 'solde_apres'              => $soldeApresExp,
                 'statut'                   => 'reussie',
