@@ -154,7 +154,6 @@
                         </div>
                     </div>
 
-                    <!-- ZONE ADMIN -->
                     <div id="zone-admin" class="d-none">
                         <?php if (session()->getFlashdata('error') && session()->getFlashdata('admin_error_flag')): ?>
                             <div class="alert alert-danger alert-custom d-flex align-items-center mb-3" role="alert">
