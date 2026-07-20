@@ -9,12 +9,34 @@ class ConnexionController extends BaseController
 {
     public function index()
     {
-        return view('login');
+        return view('login', [
+            'values' => ['telephone' => ''],
+            'errors' => ['telephone' => '']
+        ]);
     }
 
     public function login()
     {
-        $telephone = $this->request->getPost('telephone');
+        $telephoneRaw = $this->request->getPost('telephone');
+        $telephone = str_replace(' ', '', $telephoneRaw);
+
+        $values = ['telephone' => $telephoneRaw];
+        $errors = ['telephone' => ''];
+
+        if (strlen($telephone) !== 10 || !ctype_digit($telephone)) {
+            $errors['telephone'] = 'Le numéro doit comporter exactement 10 chiffres.';
+            return view('login', ['values' => $values, 'errors' => $errors]);
+        }
+
+        $prefixe = substr($telephone, 0, 3);
+
+        $db = \Config\Database::connect();
+        $prefixeValide = $db->query("SELECT * FROM prefixe_operateur WHERE prefixe = ? AND actif = 1", [$prefixe])->getRow();
+
+        if (!$prefixeValide) {
+            $errors['telephone'] = 'Opérateur non supporté (Préfixe invalide).';
+            return view('login', ['values' => $values, 'errors' => $errors]);
+        }
 
         $model = new ClientModel();
         $client = $model->autoLogin($telephone);
@@ -38,6 +60,7 @@ class ConnexionController extends BaseController
             return;
         }
 
+        session()->setFlashdata('admin_error_flag', true);
         return redirect()->back()->with('error', 'Identifiants Admin incorrects.');
     }
 
@@ -73,7 +96,7 @@ class ConnexionController extends BaseController
         $clientModel->update($client['id'], ['solde' => $soldeApres]);
 
         $operationModel->insert([
-            'type_operation_id' => 1, // 1 correspond à DEPOT dans ton script
+            'type_operation_id' => 1,
             'client_id'         => $client['id'],
             'montant'           => $montant,
             'frais_applique'    => 0,
@@ -101,7 +124,7 @@ class ConnexionController extends BaseController
             $clientModel->update($client['id'], ['solde' => $soldeApres]);
 
             $operationModel->insert([
-                'type_operation_id' => 2, // 2 correspond à RETRAIT dans ton script
+                'type_operation_id' => 2,
                 'client_id'         => $client['id'],
                 'montant'           => $montant,
                 'frais_applique'    => 0,
@@ -118,8 +141,10 @@ class ConnexionController extends BaseController
     public function transfert()
     {
         $montant = (float) $this->request->getPost('montant');
-        $destinataireTel = $this->request->getPost('destinataire');
+        $destinataireTelRaw = $this->request->getPost('destinataire');
         
+        $destinataireTel = str_replace(' ', '', $destinataireTelRaw);
+
         $clientModel = new ClientModel();
         $operationModel = new OperationModel();
 
@@ -137,7 +162,7 @@ class ConnexionController extends BaseController
             $clientModel->update($destinataire['id'], ['solde' => $soldeApresDest]);
 
             $operationModel->insert([
-                'type_operation_id'        => 3, // 3 correspond à TRANSFERT dans ton script
+                'type_operation_id'        => 3,
                 'client_id'                => $expediteur['id'],
                 'client_destinataire_id'   => $destinataire['id'],
                 'montant'                  => $montant,
