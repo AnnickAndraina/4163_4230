@@ -41,7 +41,11 @@ class ConnexionController extends BaseController
         $model = new ClientModel();
         $client = $model->autoLogin($telephone);
 
-        session()->set('client_id', $client['id']);
+        $session = session();
+        $session->set('client_id', $client['id']);
+        $session->set('client_telephone', $client['numero_telephone']);
+        $session->set('client_nom', $client['nom']);
+        $session->set('client_solde', $client['solde']);
 
         return redirect()->to('home');
     }
@@ -52,24 +56,33 @@ class ConnexionController extends BaseController
         $password = $this->request->getPost('password');
 
         if ($username === 'admin' && $password === 'admin123') {
-            session()->set('admin_connecte', true);
+            $session = session();
+            $session->set('admin_connecte', true);
             return redirect()->to('admin/dashboard');
         }
 
-        session()->setFlashdata('admin_error_flag', true);
+        $session = session();
+        $session->setFlashdata('admin_error_flag', true);
         return redirect()->back()->with('error', 'Identifiants Admin incorrects.');
     }
 
     public function home()
     {
-        if (!session()->has('client_id')) {
+        $session = session();
+        if (!$session->has('client_id')) {
             return redirect()->to('/');
         }
 
         $clientModel = new ClientModel();
         $operationModel = new OperationModel();
 
-        $client = $clientModel->find(session()->get('client_id'));
+        $client = $clientModel->find($session->get('client_id'));
+        
+        if (!$client) {
+            $session->remove('client_id');
+            return redirect()->to('/');
+        }
+
         $historique = $operationModel->getHistoriqueClient($client['id']);
 
         return view('home_client', [
@@ -94,15 +107,32 @@ class ConnexionController extends BaseController
 
     public function depot()
     {
+        $session = session();
+        if (!$session->has('client_id')) {
+            return redirect()->to('/');
+        }
+
         $montant = (float) $this->request->getPost('montant');
+        
+        if ($montant <= 0) {
+            $session->setFlashdata('popup_frais', "Le montant doit être supérieur à 0.");
+            return redirect()->to('home');
+        }
+
         $clientModel = new ClientModel();
         $operationModel = new OperationModel();
 
-        $client = $clientModel->find(session()->get('client_id'));
+        $client = $clientModel->find($session->get('client_id'));
+        
+        if (!$client) {
+            $session->remove('client_id');
+            return redirect()->to('/');
+        }
+
         $frais = $this->getFrais(1, $montant);
         $montantTotal = $montant + $frais;
 
-        $soldeAvant = $client['solde'];
+        $soldeAvant = (float)$client['solde'];
         $soldeApres = $soldeAvant + $montantTotal;
 
         $clientModel->update($client['id'], ['solde' => $soldeApres]);
@@ -119,22 +149,42 @@ class ConnexionController extends BaseController
             'date_operation'    => gmdate('Y-m-d H:i:s', time() + 10800)
         ]);
 
-        session()->setFlashdata('popup_frais', "Votre frais pour le dépôt est de " . number_format($frais, 0, ',', ' ') . " Ar.");
+        $session->set('client_id', $client['id']);
+        $session->set('client_solde', $soldeApres);
+        $session->setFlashdata('popup_frais', "Votre frais pour le dépôt est de " . number_format($frais, 0, ',', ' ') . " Ar.");
+        
         return redirect()->to('home');
     }
 
     public function retrait()
     {
+        $session = session();
+        if (!$session->has('client_id')) {
+            return redirect()->to('/');
+        }
+
         $montant = (float) $this->request->getPost('montant');
+        
+        if ($montant <= 0) {
+            $session->setFlashdata('popup_frais', "Le montant doit être supérieur à 0.");
+            return redirect()->to('home');
+        }
+
         $clientModel = new ClientModel();
         $operationModel = new OperationModel();
 
-        $client = $clientModel->find(session()->get('client_id'));
+        $client = $clientModel->find($session->get('client_id'));
+        
+        if (!$client) {
+            $session->remove('client_id');
+            return redirect()->to('/');
+        }
+
         $frais = $this->getFrais(2, $montant);
         $montantTotal = $montant + $frais;
 
-        if ($client['solde'] >= $montantTotal) {
-            $soldeAvant = $client['solde'];
+        if ((float)$client['solde'] >= $montantTotal) {
+            $soldeAvant = (float)$client['solde'];
             $soldeApres = $soldeAvant - $montantTotal;
 
             $clientModel->update($client['id'], ['solde' => $soldeApres]);
@@ -151,9 +201,11 @@ class ConnexionController extends BaseController
                 'date_operation'    => gmdate('Y-m-d H:i:s', time() + 10800)
             ]);
 
-            session()->setFlashdata('popup_frais', "Votre frais pour le retrait est de " . number_format($frais, 0, ',', ' ') . " Ar.");
+            $session->set('client_id', $client['id']);
+            $session->set('client_solde', $soldeApres);
+            $session->setFlashdata('popup_frais', "Votre frais pour le retrait est de " . number_format($frais, 0, ',', ' ') . " Ar.");
         } else {
-            session()->setFlashdata('popup_frais', "Solde insuffisant pour effectuer ce retrait.");
+            $session->setFlashdata('popup_frais', "Solde insuffisant pour effectuer ce retrait.");
         }
 
         return redirect()->to('home');
@@ -161,26 +213,52 @@ class ConnexionController extends BaseController
 
     public function transfert()
     {
+        $session = session();
+        if (!$session->has('client_id')) {
+            return redirect()->to('/');
+        }
+
         $montant = (float) $this->request->getPost('montant');
-        $destinataireTelRaw = $this->request->getPost('destinataire');
         
+        if ($montant <= 0) {
+            $session->setFlashdata('popup_frais', "Le montant doit être supérieur à 0.");
+            return redirect()->to('home');
+        }
+
+        $destinataireTelRaw = $this->request->getPost('destinataire');
         $destinataireTel = str_replace(' ', '', $destinataireTelRaw);
+
+        if (empty($destinataireTel) || strlen($destinataireTel) !== 10) {
+            $session->setFlashdata('popup_frais', "Numéro de destinataire invalide.");
+            return redirect()->to('home');
+        }
 
         $clientModel = new ClientModel();
         $operationModel = new OperationModel();
 
-        $expediteur = $clientModel->find(session()->get('client_id'));
+        $expediteur = $clientModel->find($session->get('client_id'));
+        
+        if (!$expediteur) {
+            $session->remove('client_id');
+            return redirect()->to('/');
+        }
+
+        if ($destinataireTel === $expediteur['numero_telephone']) {
+            $session->setFlashdata('popup_frais', "Vous ne pouvez pas vous transférer à vous-même.");
+            return redirect()->to('home');
+        }
+
         $destinataire = $clientModel->where('numero_telephone', $destinataireTel)->first();
         $frais = $this->getFrais(3, $montant);
         $montantTotal = $montant + $frais;
 
-        if ($destinataire && $expediteur['solde'] >= $montantTotal) {
+        if ($destinataire && (float)$expediteur['solde'] >= $montantTotal) {
             
-            $soldeAvantExp = $expediteur['solde'];
+            $soldeAvantExp = (float)$expediteur['solde'];
             $soldeApresExp = $soldeAvantExp - $montantTotal;
             $clientModel->update($expediteur['id'], ['solde' => $soldeApresExp]);
 
-            $soldeAvantDest = $destinataire['solde'];
+            $soldeAvantDest = (float)$destinataire['solde'];
             $soldeApresDest = $soldeAvantDest + $montant;
             $clientModel->update($destinataire['id'], ['solde' => $soldeApresDest]);
 
@@ -197,11 +275,23 @@ class ConnexionController extends BaseController
                 'date_operation'           => gmdate('Y-m-d H:i:s', time() + 10800)
             ]);
 
-            session()->setFlashdata('popup_frais', "Votre frais pour le transfert est de " . number_format($frais, 0, ',', ' ') . " Ar.");
+            $session->set('client_id', $expediteur['id']);
+            $session->set('client_solde', $soldeApresExp);
+            $session->setFlashdata('popup_frais', "Votre frais pour le transfert est de " . number_format($frais, 0, ',', ' ') . " Ar.");
         } else {
-            session()->setFlashdata('popup_frais', "Transfert impossible : solde insuffisant ou destinataire introuvable.");
+            $session->setFlashdata('popup_frais', "Transfert impossible : solde insuffisant ou destinataire introuvable.");
         }
 
         return redirect()->to('home');
+    }
+
+    public function logout()
+    {
+        $session = session();
+        $session->remove('client_id');
+        $session->remove('client_telephone');
+        $session->remove('client_nom');
+        $session->remove('client_solde');
+        return redirect()->to('/');
     }
 }
