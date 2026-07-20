@@ -1,9 +1,9 @@
 #todo
 - base sql
     - creation de base de donnee "mobile_money"
-    - creation de table "users" (id, nom, numero_telephone)
-    - ceation de table 
-
+    - creation de table "admin" (id, nom, pwd)
+    - ceation de table "client" (id, nom, numero_telephone)
+    -
 
 
 
