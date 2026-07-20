@@ -27,6 +27,7 @@ class OperationModel extends Model
         return $this->select('operation.*, type_operation.libelle as type_libelle')
                     ->join('type_operation', 'type_operation.id = operation.type_operation_id')
                     ->where('client_id', $clientId)
+                    ->orWhere('client_destinataire_id', $clientId)
                     ->orderBy('date_operation', 'DESC')
                     ->findAll();
     }
