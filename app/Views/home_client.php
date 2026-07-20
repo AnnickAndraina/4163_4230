@@ -35,11 +35,29 @@
         .badge-deposit { background-color: #e8f5e9; color: #2e7d32; }
         .badge-withdrawal { background-color: #ffebee; color: #c62828; }
         .badge-transfer { background-color: #e3f2fd; color: #1565c0; }
-        
         .op-row { vertical-align: middle; }
     </style>
 </head>
 <body class="bg-light">
+
+<?php if (session()->getFlashdata('popup_frais')): ?>
+    <div class="modal fade show" id="modalPopupFrais" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);" aria-modal="true" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-primary"><i class="bi bi-info-circle me-2"></i>Information sur les frais</h5>
+                    <button type="button" class="btn-close" onclick="document.getElementById('modalPopupFrais').style.display='none'"></button>
+                </div>
+                <div class="modal-body py-4 text-center">
+                    <p class="fs-5 mb-0"><?= session()->getFlashdata('popup_frais') ?></p>
+                </div>
+                <div class="modal-footer border-0 pt-0 justify-content-center">
+                    <button type="button" class="btn btn-primary px-4 rounded-pill" onclick="document.getElementById('modalPopupFrais').style.display='none'">Compris</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container">
@@ -139,8 +157,9 @@
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <small class="text-muted d-block">Avant: <?= number_format($op['solde_avant'], 0, ',', ' ') ?> Ar</small>
-                                            <small class="text-muted d-block">Après: <?= number_format($op['solde_apres'], 0, ',', ' ') ?> Ar</small>
+                                            <small class="text-muted d-block">Montant op. : <?= number_format($op['montant'], 0, ',', ' ') ?> Ar</small>
+                                            <small class="text-muted d-block">Frais : <?= number_format($op['frais_applique'], 0, ',', ' ') ?> Ar</small>
+                                            <small class="text-muted d-block">Total : <?= number_format($op['montant_total'], 0, ',', ' ') ?> Ar</small>
                                         </td>
                                         <td class="text-end fw-bold">
                                             <?php if ($op['type_operation_id'] == 1): ?>
@@ -177,7 +196,7 @@
         <div class="modal-content rounded-4 border-0 shadow">
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title fw-bold">Effectuer un Dépôt</h5>
-                <button type="button" class="btn-close" data-bs-shadow="none" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="<?= base_url('client/depot') ?>" method="post">
                 <?= csrf_field() ?>

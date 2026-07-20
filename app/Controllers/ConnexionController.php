@@ -119,6 +119,7 @@ class ConnexionController extends BaseController
             'date_operation'    => gmdate('Y-m-d H:i:s', time() + 10800)
         ]);
 
+        session()->setFlashdata('popup_frais', "Votre frais pour le dépôt est de " . number_format($frais, 0, ',', ' ') . " Ar.");
         return redirect()->to('home');
     }
 
@@ -149,6 +150,8 @@ class ConnexionController extends BaseController
                 'statut'            => 'reussie',
                 'date_operation'    => gmdate('Y-m-d H:i:s', time() + 10800)
             ]);
+
+            session()->setFlashdata('popup_frais', "Votre frais pour le retrait est de " . number_format($frais, 0, ',', ' ') . " Ar.");
         }
 
         return redirect()->to('home');
@@ -191,6 +194,8 @@ class ConnexionController extends BaseController
                 'statut'                   => 'reussie',
                 'date_operation'           => gmdate('Y-m-d H:i:s', time() + 10800)
             ]);
+
+            session()->setFlashdata('popup_frais', "Votre frais pour le transfert est de " . number_format($frais, 0, ',', ' ') . " Ar.");
         }
 
         return redirect()->to('home');
