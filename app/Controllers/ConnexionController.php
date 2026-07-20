@@ -53,11 +53,7 @@ class ConnexionController extends BaseController
 
         if ($username === 'admin' && $password === 'admin123') {
             session()->set('admin_connecte', true);
-            
-            echo "<h1>Interface Opérateur</h1>";
-            echo "* Situation gain via les différents frais (retrait et transfert)<br>";
-            echo "* Situation des comptes clients";
-            return;
+            return redirect()->to('admin/dashboard');
         }
 
         session()->setFlashdata('admin_error_flag', true);

@@ -25,6 +25,7 @@
             color: white;
             padding: 40px 30px;
             text-align: center;
+            transition: background 0.4s ease;
         }
         .brand-icon {
             width: 64px;
@@ -109,27 +110,13 @@
 
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-10 col-sm-8 col-md-6 col-lg-4">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-4">
             <div class="card login-card">
                 
-<<<<<<< HEAD
-                <div id="zone-client">
-                    <h3 class="text-center mb-4">Mobile Money</h3>
-                    <form action="<?= base_url('connexion/login') ?>" method="post">
-                        <?= csrf_field() ?>
-                        <div class="mb-3">
-                            <label for="telephone" class="form-label">Numéro de téléphone</label>
-                            <input type="text" name="telephone" id="telephone" class="form-control" value="0331234567" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Accéder au compte</button>
-                    </form>
-                    <div class="text-center mt-3">
-                        <a href="#" onclick="basculer(true)" class="text-muted small">Espace Opérateur</a>
-=======
+                <!-- En-tête Dynamique -->
                 <div class="brand-header" id="entete-visuelle">
                     <div class="brand-icon" id="icone-plateforme">
                         <i class="bi bi-wallet2"></i>
->>>>>>> 5f622620f5ce60f87b33d0d333d5559e94f0b056
                     </div>
                     <h4 class="fw-bold mb-1" id="titre-plateforme">Mobile Money</h4>
                     <p class="text-white-50 small mb-0" id="sous-titre-plateforme">Accédez à votre portefeuille en un instant</p>
@@ -137,6 +124,7 @@
 
                 <div class="card-body p-4">
                     
+                    <!-- ZONE CLIENT -->
                     <div id="zone-client">
                         <?php if (!empty($errors['telephone'])): ?>
                             <div class="alert alert-danger alert-custom d-flex align-items-center mb-3" role="alert">
@@ -166,6 +154,7 @@
                         </div>
                     </div>
 
+                    <!-- ZONE ADMIN -->
                     <div id="zone-admin" class="d-none">
                         <?php if (session()->getFlashdata('error') && session()->getFlashdata('admin_error_flag')): ?>
                             <div class="alert alert-danger alert-custom d-flex align-items-center mb-3" role="alert">
@@ -230,7 +219,11 @@ function basculer(isAdmin) {
         sousTitre.innerText = 'Accédez à votre portefeuille en un instant';
     }
 }
-<?php if (session()->getFlashdata('error') && session()->getFlashdata('admin_error_flag')): ?> basculer(true); <?php endif; ?>
+
+// Reste sur l'interface d'administration si une erreur de connexion admin survient au rechargement
+<?php if (session()->getFlashdata('error') && session()->getFlashdata('admin_error_flag')): ?> 
+    basculer(true); 
+<?php endif; ?>
 </script>
 </body>
 </html>
