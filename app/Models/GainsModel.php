@@ -19,9 +19,9 @@ class GainsModel extends Model
         ];
 
         foreach ($data as $row) {
-            if ($row['type_operateur'] === 'LOCAL') {
+            if (isset($row['type_operateur']) && $row['type_operateur'] === 'LOCAL') {
                 $result['local'][] = $row;
-            } elseif ($row['type_operateur'] === 'EXTERNE') {
+            } elseif (isset($row['type_operateur']) && $row['type_operateur'] === 'EXTERNE') {
                 $result['externe'][] = $row;
             }
         }
