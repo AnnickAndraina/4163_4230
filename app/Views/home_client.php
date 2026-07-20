@@ -7,31 +7,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-        .balance-card {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            border: none;
-            border-radius: 16px;
-        }
-        .action-card {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-        }
-        .action-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        .icon-box {
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
+        .balance-card { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; border: none; border-radius: 16px; }
+        .action-card { border: 1px solid #e9ecef; border-radius: 12px; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
+        .action-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .icon-box { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
         .badge-deposit { background-color: #e8f5e9; color: #2e7d32; }
         .badge-withdrawal { background-color: #ffebee; color: #c62828; }
         .badge-transfer { background-color: #e3f2fd; color: #1565c0; }
@@ -39,25 +18,6 @@
     </style>
 </head>
 <body class="bg-light">
-
-<?php if (session()->getFlashdata('popup_frais')): ?>
-    <div class="modal fade show" id="modalPopupFrais" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);" aria-modal="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-4 border-0 shadow">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold text-primary"><i class="bi bi-info-circle me-2"></i>Information sur les frais</h5>
-                    <button type="button" class="btn-close" onclick="document.getElementById('modalPopupFrais').style.display='none'"></button>
-                </div>
-                <div class="modal-body py-4 text-center">
-                    <p class="fs-5 mb-0"><?= session()->getFlashdata('popup_frais') ?></p>
-                </div>
-                <div class="modal-footer border-0 pt-0 justify-content-center">
-                    <button type="button" class="btn btn-primary px-4 rounded-pill" onclick="document.getElementById('modalPopupFrais').style.display='none'">Compris</button>
-                </div>
-            </div>
-        </div>
-    </div>
-<?php endif; ?>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container">
@@ -68,7 +28,6 @@
 
 <div class="container pb-5">
     <div class="row g-4">
-        
         <div class="col-lg-4">
             <div class="card balance-card p-4 shadow-sm mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -187,16 +146,34 @@
                 <?php endif; ?>
             </div>
         </div>
-
     </div>
 </div>
+
+<?php if (session()->getFlashdata('popup_frais')): ?>
+<div class="modal fade" id="modalPopupFrais" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-primary"><i class="bi bi-info-circle me-2"></i>Information sur les frais</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-4 text-center">
+                <p class="fs-5 mb-0"><?= session()->getFlashdata('popup_frais') ?></p>
+            </div>
+            <div class="modal-footer border-0 pt-0 justify-content-center">
+                <button type="button" class="btn btn-primary px-4 rounded-pill" data-bs-dismiss="modal">Compris</button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <div class="modal fade" id="modalDepot" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow">
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title fw-bold">Effectuer un Dépôt</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="<?= base_url('client/depot') ?>" method="post">
                 <?= csrf_field() ?>
@@ -223,7 +200,7 @@
         <div class="modal-content rounded-4 border-0 shadow">
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title fw-bold">Effectuer un Retrait</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="<?= base_url('client/retrait') ?>" method="post">
                 <?= csrf_field() ?>
@@ -251,7 +228,7 @@
         <div class="modal-content rounded-4 border-0 shadow">
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title fw-bold">Effectuer un Transfert</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="<?= base_url('client/transfert') ?>" method="post">
                 <?= csrf_field() ?>
@@ -281,5 +258,14 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const popup = document.getElementById('modalPopupFrais');
+        if (popup) {
+            const modal = new bootstrap.Modal(popup);
+            modal.show();
+        }
+    });
+</script>
 </body>
 </html>

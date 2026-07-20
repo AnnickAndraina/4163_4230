@@ -66,7 +66,7 @@ class ConnexionController extends BaseController
         return redirect()->back()->with('error', 'Identifiants Admin incorrects.');
     }
 
-    public function home()
+       public function home()
     {
         $session = session();
         if (!$session->has('client_id')) {
@@ -90,7 +90,7 @@ class ConnexionController extends BaseController
             'historique' => $historique
         ]);
     }
-
+    
     private function getFrais($typeOperationId, $montant)
     {
         $db = \Config\Database::connect();
