@@ -156,7 +156,7 @@ class ConnexionController extends BaseController
         $clientModel = new ClientModel();
         $operationModel = new OperationModel();
         $client = $clientModel->find($session->get('client_id'));
-
+//calcul dépôt
         $frais = $this->getFrais(1, $montant);
         $montantTotal = $montant + $frais;
 
@@ -196,7 +196,7 @@ class ConnexionController extends BaseController
         $clientModel = new ClientModel();
         $operationModel = new OperationModel();
         $client = $clientModel->find($session->get('client_id'));
-
+//calcul retrait
         $frais = $this->getFrais(2, $montant);
         $montantTotal = $montant + $frais;
 
@@ -259,7 +259,7 @@ class ConnexionController extends BaseController
             $session->setFlashdata('popup_frais', "Opérateur de l'expéditeur non reconnu.");
             return redirect()->to('home');
         }
-
+//division montant pour plusieurs destinataires
         $nombreDest = count($destinatairesList);
         $montantParDest = floor($montantTotalInput / $nombreDest);
         if ($montantParDest <= 0) {
@@ -380,6 +380,7 @@ class ConnexionController extends BaseController
         $session->setFlashdata('popup_frais', $msg);
         return redirect()->to('home');
     }
+
 
     public function logout()
     {
