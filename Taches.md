@@ -1,4 +1,4 @@
-# ( 4163 ) Login 
+# ( 4163 ) V1 Login
 ## 1. Analyse des besoins
 - [ ] Identifier les données nécessaires au fonctionnement de l'application.
 - [ ] Déterminer les entités principales.
@@ -25,13 +25,37 @@
     - id
     - nom
     - numero_telephone
+    - solde          
+    - status  
 
 ### Préfixes opérateurs
 - [ ] Créer la table `prefixe_operateur`
     - id
     - prefixe
     - libelle
+    - type    (LOCAL ou EXTERNE)
     - actif
+
+### configuration
+- [ ] Créer la table `configuration`
+    - id
+    - commission_autre_operateur
+
+### operation
+- [ ] Créer la table `operation`
+    - id
+    - type_operation_id
+    - client_id
+    - client_destinataire_id
+    - operateur_destination_id
+    - commission
+    - montant
+    - frais_applique
+    - montant_total
+    - solde_avant
+    - solde_apres
+    - statut
+    - date_operation
 
 ### Types d'opérations
 - [ ] Créer la table `type_operation`
@@ -83,6 +107,47 @@
 
 ---
 
+# ( 4163 ) Version 2
+
+## 1. Évolution du schéma
+- [ ] Fusionner `prefixe_operateur` dans la table `operateur`, avec ajout
+      de la colonne `type` (CHECK: LOCAL / EXTERNE) pour distinguer
+      opérateur local vs autres opérateurs.
+- [ ] Créer la table `configuration` (commission_autre_operateur) pour
+      stocker le % de commission appliqué aux transferts vers les
+      autres opérateurs.
+- [ ] Ajouter les colonnes `operateur_destination_id` et `commission`
+      sur la table `operation`.
+- [ ] Vérifier que `frais_applique` sur `operation` capture bien le
+      total des frais réellement prélevés (transfert + retrait +
+      commission selon le cas).
+
+## 2. Contraintes & intégrité
+- [ ] FK `operation.operateur_destination_id` → `operateur.id`.
+- [ ] Vérifier que `prefixe` reste UNIQUE sur `operateur` (chaque
+      préfixe, ex: 031, 032, correspond à un opérateur distinct même
+      si le libellé est identique, ex: Orange Money).
+
+## 3. Vues pour le dashboard admin
+- [ ] Créer la vue `vue_situation_gains` : total des frais gagnés,
+      réparti par opérateur local / autres opérateurs, et par type
+      d'opération (dépôt, retrait, transfert).
+- [ ] Créer la vue `vue_situation_montants_operateurs` : total des
+      commissions à reverser à chaque autre opérateur (regroupé par
+      libellé, ex: Orange Money = somme des préfixes 031 + 032).
+
+## 4. Jeu de données de test
+- [ ] Insérer au moins un opérateur LOCAL et deux opérateurs EXTERNE
+      avec des libellés partagés sur 2 préfixes (ex: Orange Money
+      031/032) pour valider le regroupement dans les vues.
+- [ ] Insérer une valeur de test dans `configuration`
+      (ex: commission_autre_operateur = 1.00).
+
+## 5. Validation
+- [ ] Vérifier que les vues remontent 0 (et pas d'erreur) quand
+      aucune opération n'existe encore.
+- [ ] Vérifier la cohérence des montants entre `operation.frais_applique`
+      et les totaux affichés par les vues.
 
 
 
