@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class GainsModel extends Model
 {
     protected $table      = 'vue_situation_gains';
-    protected $primaryKey = 'code_operation'; 
+    protected $primaryKey = 'code_operation';
 
     public function getSituation()
     {

@@ -50,7 +50,6 @@
                             </td>
                         </tr>
 
-                        <!-- Popup de modification pour cette tranche précise -->
                         <div class="modal fade" id="modalModifier<?= $b['id'] ?>" tabindex="-1">
                             <div class="modal-dialog">
                                 <div class="modal-content">
@@ -93,7 +92,6 @@
         </div>
     </div>
 
-    <!-- Popup d'ajout de nouvelle tranche -->
     <div class="modal fade" id="modalAjoutTranche" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -121,14 +119,3 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
                         <button type="submit" class="btn btn-danger">Ajouter</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>

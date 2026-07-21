@@ -6,10 +6,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="<?= base_url('style.css') ?>">
 </head>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-
-
 <body class="bg-light">
 
 <nav class="navbar navbar-dark bg-danger mb-4">
@@ -21,9 +17,6 @@
 
 <div class="container mb-5">
 
-    <!-- ========================================= -->
-    <!-- SECTION 1 : Configuration Commission -->
-    <!-- ========================================= -->
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-white">
             <strong>Commission pour transferts vers autres opérateurs</strong>
@@ -45,10 +38,6 @@
         </div>
     </div>
 
-
-    <!-- ========================================= -->
-    <!-- SECTION 2 : Barèmes de frais -->
-    <!-- ========================================= -->
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-white">
             <strong>Barèmes de frais</strong>
@@ -69,9 +58,6 @@
         </div>
     </div>
 
-    <!-- ========================================= -->
-    <!-- SECTION 3 : Situation des gains (2 blocs cliquables) -->
-    <!-- ========================================= -->
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-white">
             <strong>Situation des gains (frais collectés)</strong>
@@ -104,9 +90,6 @@
         </div>
     </div>
 
-    <!-- ========================================= -->
-    <!-- SECTION : Situation des montants à envoyer à chaque opérateur -->
-    <!-- ========================================= -->
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-white">
             <strong>Situation des montants à envoyer à chaque opérateur</strong>
@@ -135,9 +118,6 @@
         </div>
     </div>
 
-    <!-- ========================================= -->
-    <!-- SECTION 4 : Situation des comptes clients -->
-    <!-- ========================================= -->
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-white">
             <strong>Situation des comptes clients</strong>
@@ -175,5 +155,6 @@
     </div>
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

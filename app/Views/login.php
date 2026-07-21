@@ -14,8 +14,7 @@
     <div class="row justify-content-center">
         <div class="col-12 col-sm-10 col-md-8 col-lg-4">
             <div class="card login-card">
-                
-                <!-- En-tête Dynamique -->
+
                 <div class="brand-header" id="entete-visuelle">
                     <div class="brand-icon" id="icone-plateforme">
                         <i class="bi bi-wallet2"></i>
@@ -25,8 +24,7 @@
                 </div>
 
                 <div class="card-body p-4">
-                    
-                    <!-- ZONE CLIENT -->
+
                     <div id="zone-client">
                         <?php if (!empty($errors['telephone'])): ?>
                             <div class="alert alert-danger alert-custom d-flex align-items-center mb-3" role="alert">
@@ -48,7 +46,7 @@
                                 Se connecter <i class="bi bi-arrow-right ms-1"></i>
                             </button>
                         </form>
-                        
+
                         <div class="text-center">
                             <a href="#" onclick="basculer(true)" class="toggle-link">
                                 <i class="bi bi-shield-lock me-1"></i> Espace Opérateur
@@ -102,7 +100,7 @@
 function basculer(isAdmin) {
     document.getElementById('zone-client').classList.toggle('d-none', isAdmin);
     document.getElementById('zone-admin').classList.toggle('d-none', !isAdmin);
-    
+
     const entete = document.getElementById('entete-visuelle');
     const icone = document.getElementById('icone-plateforme');
     const titre = document.getElementById('titre-plateforme');
@@ -121,9 +119,8 @@ function basculer(isAdmin) {
     }
 }
 
-// Reste sur l'interface d'administration si une erreur de connexion admin survient au rechargement
-<?php if (session()->getFlashdata('error') && session()->getFlashdata('admin_error_flag')): ?> 
-    basculer(true); 
+<?php if (session()->getFlashdata('error') && session()->getFlashdata('admin_error_flag')): ?>
+    basculer(true);
 <?php endif; ?>
 </script>
 </body>

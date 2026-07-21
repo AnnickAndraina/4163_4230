@@ -9,16 +9,16 @@ class OperationModel extends Model
     protected $table            = 'operation';
     protected $primaryKey       = 'id';
     protected $allowedFields    = [
-        'type_operation_id', 
-        'client_id', 
+        'type_operation_id',
+        'client_id',
         'client_destinataire_id',
-        'operateur_destination_id', 
+        'operateur_destination_id',
         'commission',
-        'montant', 
-        'frais_applique', 
+        'montant',
+        'frais_applique',
         'montant_total',
-        'solde_avant', 
-        'solde_apres', 
+        'solde_avant',
+        'solde_apres',
         'statut'
     ];
 

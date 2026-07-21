@@ -25,7 +25,6 @@ class ConnexionController extends BaseController
         $values = ['telephone' => $telephoneRaw];
         $errors = ['telephone' => ''];
 
-        // Vérification du nombre de chiffres
         if (strlen($telephone) !== 10 || !ctype_digit($telephone)) {
             $errors['telephone'] = 'Le numéro doit comporter exactement 10 chiffres.';
             return view('login', ['values' => $values, 'errors' => $errors]);
@@ -33,7 +32,6 @@ class ConnexionController extends BaseController
 
         $prefixe = substr($telephone, 0, 3);
 
-        // Vérifier si le préfixe existe dans la table operateur (local ou externe)
         $operateurModel = new OperateurModel();
         $operateur = $operateurModel->where('prefixe', $prefixe)->where('actif', 1)->first();
 
@@ -42,14 +40,11 @@ class ConnexionController extends BaseController
             return view('login', ['values' => $values, 'errors' => $errors]);
         }
 
-        // Enregistrer le client dans tous les cas (même si externe)
         $model = new ClientModel();
         $client = $model->autoLogin($telephone);
 
-        // Vérifier si c'est un opérateur LOCAL (peut se connecter)
         if ($operateur['type'] !== 'LOCAL') {
             $errors['telephone'] = 'Cet opérateur ne permet pas la connexion à l\'application.';
-            // Retourner avec les valeurs pour que l'utilisateur puisse réessayer
             $values['telephone'] = $telephoneRaw;
             return view('login', ['values' => $values, 'errors' => $errors]);
         }
@@ -99,22 +94,20 @@ class ConnexionController extends BaseController
 
         $historique = $operationModel->getHistoriqueClient($client['id']);
 
-        // Vérifier si le client a reçu de l'argent récemment
         try {
             $dernierTransfert = $operationModel
                 ->where('client_destinataire_id', $client['id'])
-                ->where('type_operation_id', 3) // TRANSFERT
+                ->where('type_operation_id', 3)
                 ->orderBy('date_operation', 'DESC')
                 ->first();
 
             if ($dernierTransfert && strtotime($dernierTransfert['date_operation']) > time() - 60) {
                 $frais = (float)$dernierTransfert['frais_applique'];
                 $montantRecu = (float)$dernierTransfert['montant'];
-                
-                // Récupérer le nom de l'expéditeur
+
                 $expediteur = $clientModel->find($dernierTransfert['client_id']);
                 $nomExpediteur = $expediteur ? $expediteur['nom'] : 'Inconnu';
-                
+
                 $message = $frais > 0
                     ? "Vous avez reçu " . number_format($montantRecu, 0, ',', ' ') . " Ar de " . $nomExpediteur . " (frais déduits)."
                     : "Vous avez reçu " . number_format($montantRecu, 0, ',', ' ') . " Ar de " . $nomExpediteur . ".";
@@ -286,7 +279,6 @@ class ConnexionController extends BaseController
                 return redirect()->to('home');
             }
 
-            // Vérifier si le préfixe existe dans la table operateur (local ou externe)
             $destOperateur = $this->getOperateurByTelephone($tel);
             if (!$destOperateur) {
                 $session->setFlashdata('popup_frais', "Opérateur du destinataire non reconnu : " . $tel);
@@ -299,7 +291,6 @@ class ConnexionController extends BaseController
                 return redirect()->to('home');
             }
 
-            // Comparer par libelle au lieu de id
             $destinatairesData[] = [
                 'dest'          => $dest,
                 'tel'           => $tel,
@@ -309,7 +300,6 @@ class ConnexionController extends BaseController
             ];
         }
 
-        // Vérification pour envoi multiple : tous les destinataires doivent être du même opérateur que l'expéditeur
         if ($nombreDest > 1) {
             foreach ($destinatairesData as $dData) {
                 if (!$dData['memeOperateur']) {
@@ -320,34 +310,28 @@ class ConnexionController extends BaseController
         }
 
         $commissionRate = (float)$configModel->getCommission() / 100.0;
-
         $montantTotalADebiter = 0;
 
         foreach ($destinatairesData as &$dData) {
             $dest = $dData['dest'];
             $memeOperateur = $dData['memeOperateur'];
 
-            // Frais de transfert (type 3) toujours applicables
             $fraisTransfert = $this->getFrais(3, $montantParDest);
 
             if ($memeOperateur) {
-                // Même opérateur : pas de commission inter-opérateur
                 $commissionInter = 0;
-                // Frais de retrait (type 2) si l'option est cochée
                 $fraisRetrait = $inclureFrais ? $this->getFrais(2, $montantParDest) : 0;
                 $fraisTotalParDest = $fraisTransfert + $fraisRetrait;
                 $montantRecuParDest = $montantParDest;
             } else {
-                // Autre opérateur : pas de frais de retrait (même si option cochée)
                 $fraisRetrait = 0;
                 $commissionInter = round($montantParDest * $commissionRate, 0);
                 $fraisTotalParDest = $fraisTransfert + $commissionInter;
-                $montantRecuParDest = $montantParDest; // le destinataire reçoit le montant intégral
+                $montantRecuParDest = $montantParDest;
             }
 
             $montantTotalADebiter += $montantParDest + $fraisTotalParDest;
 
-            // Stocker les données pour l'insertion ultérieure
             $dData['fraisTransfert'] = $fraisTransfert;
             $dData['fraisRetrait'] = $fraisRetrait;
             $dData['commissionInter'] = $commissionInter;
@@ -356,7 +340,6 @@ class ConnexionController extends BaseController
         }
         unset($dData);
 
-        // Vérification du solde de l'expéditeur
         if ((float)$expediteur['solde'] < $montantTotalADebiter) {
             $session->setFlashdata('popup_frais', "Solde insuffisant pour effectuer ce transfert.");
             return redirect()->to('home');
@@ -366,7 +349,6 @@ class ConnexionController extends BaseController
         $soldeApresExp = $soldeAvantExp - $montantTotalADebiter;
         $clientModel->update($expediteur['id'], ['solde' => $soldeApresExp]);
 
-        // Enregistrement des opérations
         foreach ($destinatairesData as $dData) {
             $dest = $dData['dest'];
             $soldeAvantDest = (float)$dest['solde'];

@@ -40,7 +40,7 @@
 
             <div class="card p-4 shadow-sm border-0 rounded-4 mb-4">
                 <h5 class="fw-bold mb-3">Opérations rapides</h5>
-                
+
                 <div class="d-flex align-items-center p-3 mb-2 action-card" data-bs-toggle="modal" data-bs-target="#modalDepot">
                     <div class="icon-box badge-deposit me-3"><i class="bi bi-arrow-down-left-circle"></i></div>
                     <div class="flex-grow-1">
@@ -159,7 +159,6 @@
 </div>
 <?php endif; ?>
 
-<!-- Modal Dépôt -->
 <div class="modal fade" id="modalDepot" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow">
@@ -187,7 +186,6 @@
     </div>
 </div>
 
-<!-- Modal Retrait -->
 <div class="modal fade" id="modalRetrait" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow">
@@ -216,7 +214,6 @@
     </div>
 </div>
 
-<!-- Modal Transfert -->
 <div class="modal fade" id="modalTransfert" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow">
