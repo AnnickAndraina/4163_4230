@@ -41,38 +41,6 @@ class AdminController extends BaseController
         ]);
     }
 
-    public function addPrefixe()
-    {
-        if ($redirect = $this->checkAuth()) return $redirect;
-
-        $prefixe = $this->request->getPost('prefixe');
-
-        $operateurModel = new OperateurModel();
-        $operateurModel->insert([
-            'prefixe' => $prefixe,
-            'libelle' => 'Opérateur ' . $prefixe,
-            'type'    => 'LOCAL',
-            'actif'   => 1,
-        ]);
-
-        return redirect()->to('admin/dashboard');
-    }
-
-    public function togglePrefixe($id)
-    {
-        if ($redirect = $this->checkAuth()) return $redirect;
-
-        $operateurModel = new OperateurModel();
-        $operateur = $operateurModel->find($id);
-
-        if ($operateur) {
-            $nouvelEtat = $operateur['actif'] ? 0 : 1;
-            $operateurModel->toggleActif($id, $nouvelEtat);
-        }
-
-        return redirect()->to('admin/dashboard');
-    }
-
     public function addBareme()
     {
         if ($redirect = $this->checkAuth()) return $redirect;

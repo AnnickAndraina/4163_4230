@@ -17,8 +17,6 @@ $routes->post('client/transfert', 'ConnexionController::transfert');
 
 $routes->get('admin/dashboard', 'AdminController::dashboard');
 $routes->post('admin/update-commission', 'AdminController::updateCommission');
-$routes->post('admin/prefixe/add', 'AdminController::addPrefixe');
-$routes->get('admin/prefixe/toggle/(:num)', 'AdminController::togglePrefixe/$1');
 $routes->get('admin/bareme/type/(:num)', 'AdminController::baremeType/$1');
 $routes->post('admin/bareme/add', 'AdminController::addBareme');
 $routes->post('admin/bareme/update', 'AdminController::updateBareme');
