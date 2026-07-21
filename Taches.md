@@ -1,27 +1,19 @@
 # ( 4163 ) V1 Login
-## 1. Analyse des besoins
-- [ ] Identifier les données nécessaires au fonctionnement de l'application.
-- [ ] Déterminer les entités principales.
-- [ ] Définir les relations entre les entités.
-- [ ] Vérifier les règles de gestion avec l'équipe.
+## 1. Création de la base de données
+- [x] Créer la base de données `mobile_money`.
 
 ---
 
-## 2. Création de la base de données
-- [ ] Créer la base de données `mobile_money`.
-
----
-
-## 3. Création des tables
+## 2. Création des tables
 
 ### Administration
-- [ ] Créer la table `admin`
+- [x] Créer la table `admin`
     - id
     - nom
     - pwd
 
 ### Clients
-- [ ] Créer la table `client`
+- [x] Créer la table `client`
     - id
     - nom
     - numero_telephone
@@ -29,7 +21,7 @@
     - status  
 
 ### Préfixes opérateurs
-- [ ] Créer la table `prefixe_operateur`
+- [x] Créer la table `prefixe_operateur`
     - id
     - prefixe
     - libelle
@@ -37,12 +29,12 @@
     - actif
 
 ### configuration
-- [ ] Créer la table `configuration`
+- [x] Créer la table `configuration`
     - id
     - commission_autre_operateur
 
 ### operation
-- [ ] Créer la table `operation`
+- [x] Créer la table `operation`
     - id
     - type_operation_id
     - client_id
@@ -58,13 +50,13 @@
     - date_operation
 
 ### Types d'opérations
-- [ ] Créer la table `type_operation`
+- [x] Créer la table `type_operation`
     - id
     - code
     - libelle
 
 ### Barème des frais
-- [ ] Créer la table `bareme_frais`
+- [x] Créer la table `bareme_frais` 
     - id
     - type_operation_id
     - montant_min
@@ -74,81 +66,161 @@
 
 ---
 
-## 4. Relations entre les tables
-- [ ] Ajouter la clé étrangère entre `bareme_frais` et `type_operation`.
-- [ ] Vérifier l'intégrité référentielle.
-- [ ] Définir les règles ON UPDATE et ON DELETE.
+## 3. Relations entre les tables
+- [x] Ajouter la clé étrangère entre `bareme_frais` et `type_operation`.
+- [x] Vérifier l'intégrité référentielle.
+- [x] Définir les règles ON UPDATE et ON DELETE.
 
 ---
 
-## 5. Contraintes
-- [ ] Définir les PRIMARY KEY.
-- [ ] Définir les FOREIGN KEY.
-- [ ] Ajouter les contraintes NOT NULL.
-- [ ] Ajouter les contraintes UNIQUE si nécessaire.
-- [ ] Définir les valeurs par défaut.
-- [ ] Vérifier les types de données.
+## 4. Contraintes
+- [x] Définir les PRIMARY KEY.
+- [x] Définir les FOREIGN KEY.
+- [x] Ajouter les contraintes NOT NULL.
+- [x] Ajouter les contraintes UNIQUE si nécessaire.
+- [x] Définir les valeurs par défaut.
+- [x] Vérifier les types de données.
 
 ---
 
-## 6. Jeu de données
-- [ ] Insérer un administrateur de test.
-- [ ] Insérer des clients de test.
-- [ ] Insérer les préfixes des opérateurs.
-- [ ] Insérer les différents types d'opérations.
-- [ ] Insérer les barèmes de frais.
+## 5. Jeu de données
+- [x] Insérer un administrateur de test.    
+- [x] Insérer des clients de test.
+- [x] Insérer les préfixes des opérateurs.
+- [x] Insérer les différents types d'opérations.
+- [x] Insérer les barèmes de frais.
 
 ---
 
-## 7. Validation
-- [ ] Tester toutes les relations entre les tables.
-- [ ] Vérifier la cohérence des données.
-- [ ] Corriger les éventuelles anomalies.
+## 6. Validation
+- [x] Tester toutes les relations entre les tables.
+- [x] Vérifier la cohérence des données.
+- [x] Corriger les éventuelles anomalies.
 
 ---
 
-# ( 4163 ) Version 2
+# (4163) Version 2 - Partie Opérateur
 
-## 1. Évolution du schéma
-- [ ] Fusionner `prefixe_operateur` dans la table `operateur`, avec ajout
-      de la colonne `type` (CHECK: LOCAL / EXTERNE) pour distinguer
-      opérateur local vs autres opérateurs.
-- [ ] Créer la table `configuration` (commission_autre_operateur) pour
-      stocker le % de commission appliqué aux transferts vers les
-      autres opérateurs.
-- [ ] Ajouter les colonnes `operateur_destination_id` et `commission`
-      sur la table `operation`.
-- [ ] Vérifier que `frais_applique` sur `operation` capture bien le
-      total des frais réellement prélevés (transfert + retrait +
-      commission selon le cas).
+## Base de données
 
-## 2. Contraintes & intégrité
-- [ ] FK `operation.operateur_destination_id` → `operateur.id`.
-- [ ] Vérifier que `prefixe` reste UNIQUE sur `operateur` (chaque
-      préfixe, ex: 031, 032, correspond à un opérateur distinct même
-      si le libellé est identique, ex: Orange Money).
+- [x] Fusionner `prefixe_operateur` dans la table `operateur`.
+- [x] Ajouter la colonne `type` (LOCAL / EXTERNE).
+- [x] Créer la table `configuration`.
+- [x] Ajouter la colonne `commission_autre_operateur`.
+- [x] Ajouter `operateur_destination_id` dans `operation`.
+- [x] Ajouter la colonne `commission` dans `operation`.
+- [x] Créer la clé étrangère `operateur_destination_id`.
+- [x] Vérifier l'unicité du préfixe (`UNIQUE`).
+- [x] Vérifier les contraintes d'intégrité référentielle.
+- [x] Insérer les données de test (opérateurs, configuration).
+- [x] Tester le schéma après migration.
 
-## 3. Vues pour le dashboard admin
-- [ ] Créer la vue `vue_situation_gains` : total des frais gagnés,
-      réparti par opérateur local / autres opérateurs, et par type
-      d'opération (dépôt, retrait, transfert).
-- [ ] Créer la vue `vue_situation_montants_operateurs` : total des
-      commissions à reverser à chaque autre opérateur (regroupé par
-      libellé, ex: Orange Money = somme des préfixes 031 + 032).
+---
 
-## 4. Jeu de données de test
-- [ ] Insérer au moins un opérateur LOCAL et deux opérateurs EXTERNE
-      avec des libellés partagés sur 2 préfixes (ex: Orange Money
-      031/032) pour valider le regroupement dans les vues.
-- [ ] Insérer une valeur de test dans `configuration`
-      (ex: commission_autre_operateur = 1.00).
+## Models
 
-## 5. Validation
-- [ ] Vérifier que les vues remontent 0 (et pas d'erreur) quand
-      aucune opération n'existe encore.
-- [ ] Vérifier la cohérence des montants entre `operation.frais_applique`
-      et les totaux affichés par les vues.
+### OperateurModel
 
+- [x] Adapter le modèle au nouveau schéma.
+- [x] Ajouter la récupération des opérateurs locaux.
+- [x] Ajouter la récupération des opérateurs externes.
+- [x] Ajouter une méthode de recherche par préfixe.
+- [x] Ajouter une méthode de regroupement par libellé.
+
+### ConfigurationModel
+
+- [x] Créer le modèle.
+- [x] Ajouter la récupération du pourcentage de commission.
+- [x] Ajouter la modification de la configuration.
+
+### OperationModel
+
+- [x] Adapter le modèle aux nouvelles colonnes.
+- [x] Enregistrer l'opérateur de destination.
+- [x] Enregistrer la commission appliquée.
+- [x] Calculer les frais réellement appliqués.
+
+---
+
+## Controllers
+
+### OperateurController
+
+- [x] Adapter les méthodes existantes.
+- [x] Gérer les opérateurs locaux.
+- [x] Gérer les opérateurs externes.
+- [x] Valider l'unicité des préfixes.
+- [x] Ajouter les messages d'erreur.
+
+### ConfigurationController
+
+- [x] Créer le contrôleur.
+- [x] Afficher la configuration.
+- [x] Modifier le pourcentage de commission.
+- [x] Vérifier la validité du pourcentage.
+
+### DashboardController
+
+- [x] Ajouter la récupération de la vue `vue_situation_gains`.
+- [x] Ajouter la récupération de la vue `vue_situation_montants_operateurs`.
+- [x] Préparer les données pour l'affichage.
+
+---
+
+## Views
+
+### Gestion des opérateurs
+
+- [x] Adapter le formulaire d'ajout/modification.
+- [x] Ajouter le choix du type (LOCAL / EXTERNE).
+- [x] Afficher le type dans la liste des opérateurs.
+
+### Configuration
+
+- [x] Créer la page de configuration.
+- [x] Ajouter le formulaire de modification du pourcentage de commission.
+- [x] Afficher le pourcentage actuel.
+
+### Dashboard
+
+- [x] Afficher la situation des gains par type d'opération.
+- [x] Séparer les gains des opérateurs locaux et externes.
+- [x] Afficher les montants à reverser à chaque opérateur externe.
+- [x] Regrouper les opérateurs partageant le même libellé.
+
+---
+
+## Logique métier
+
+- [x] Identifier automatiquement l'opérateur à partir du préfixe.
+- [x] Déterminer si le transfert est local ou externe.
+- [x] Calculer la commission selon la configuration.
+- [x] Calculer le montant total débité.
+- [x] Enregistrer tous les montants calculés.
+- [x] Vérifier la cohérence des calculs avant validation.
+
+---
+
+## Vues SQL
+
+- [x] Créer `vue_situation_gains`.
+- [x] Vérifier le regroupement par type d'opération.
+- [x] Vérifier la séparation LOCAL / EXTERNE.
+- [x] Créer `vue_situation_montants_operateurs`.
+- [x] Regrouper les commissions par libellé.
+
+---
+
+## Tests
+
+- [x] Vérifier les calculs des commissions.
+- [x] Vérifier les transferts locaux.
+- [x] Vérifier les transferts vers d'autres opérateurs.
+- [x] Vérifier les regroupements par libellé.
+- [x] Vérifier les vues sans données.
+- [x] Vérifier les vues avec plusieurs opérations.
+- [x] Vérifier les montants affichés dans le dashboard.
+- [x] Corriger les anomalies détectées.
 
 
 # ( 4230 ) Login 
