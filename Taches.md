@@ -141,3 +141,38 @@
         - Controller:
         - Vue:
         - Routes:
+
+## ( 4230 ) Version 2
+
+Dépôt: 
+    Solde avant + (Montant + Frais) = Solde après
+
+Retrait:
+     Solde avant - (Montant + Frais) = Solde après
+
+Transfert:
+    - verification même opérateur pour l envoie multiple
+        si les libelles sont les memes-> même opérateur
+
+    - division montant si plusieurs destinataires ($montantParDest)
+        $montantParDest = montant total/nb de destinataires
+
+    - Frais pour transfert:
+
+        - si même opérateur/retrait cochée:
+            0 commission
+            vola miala: montant + transfert + retrait
+
+        - si même opérateur/retrait décochée:
+            0 commission
+            vola miala: montant + transfert
+
+        - autre opérateur(retrait cochée)
+            pas de frait de retrait
+            vola miala: montant + transfert + commission
+
+        - autre opérateur(retrait décochée)  
+            pas de frait de retrait  
+            vola miala: montant + transfert + commission
+
+
