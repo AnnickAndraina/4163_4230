@@ -5,17 +5,23 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'ConnexionController::index');
-$routes->post('connexion/login', 'ConnexionController::login');
-$routes->post('connexion/loginAdmin', 'ConnexionController::loginAdmin');
 
+$routes->get('/', 'AuthController::index');
+$routes->post('connexion/login', 'AuthController::login');
+$routes->post('connexion/loginAdmin', 'AuthController::loginAdmin');
+$routes->get('logout', 'AuthController::logout');
 
-$routes->get('home', 'ConnexionController::home');
-$routes->post('client/depot', 'ConnexionController::depot');
-$routes->post('client/retrait', 'ConnexionController::retrait');
-$routes->post('client/transfert', 'ConnexionController::transfert');
+$routes->get('client/home', 'ClientController::home');
+
+$routes->post('client/depot', 'DepotController::depot');
+
+$routes->post('client/retrait', 'RetraitController::retrait');
+
+$routes->post('client/transfert', 'TransfertController::transfert');
 
 $routes->get('admin/dashboard', 'AdminController::dashboard');
+$routes->get('admin/prefixe/add', 'AdminController::addPrefixe');
+$routes->get('admin/prefixe/toggle/(:num)', 'AdminController::togglePrefixe/$1');
 $routes->post('admin/update-commission', 'AdminController::updateCommission');
 $routes->get('admin/bareme/type/(:num)', 'AdminController::baremeType/$1');
 $routes->post('admin/bareme/add', 'AdminController::addBareme');
