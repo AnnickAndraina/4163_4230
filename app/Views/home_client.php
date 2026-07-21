@@ -67,6 +67,16 @@
                     </div>
                     <i class="bi bi-chevron-right text-muted"></i>
                 </div>
+
+                <div class="d-flex align-items-center p-3 mb-2 action-card" data-bs-toggle="modal" data-bs-target="#modalEpargne">
+                    <div class="icon-box badge-withdrawal me-3"><i class="bi bi-arrow-up-right-circle"></i></div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0 fw-bold">Epargne</h6>
+                        <small class="text-muted">Epargner de l'argent dans votre compte</small>
+                    </div>
+                    <i class="bi bi-chevron-right text-muted"></i>
+                </div>
+
             </div>
         </div>
 
@@ -249,6 +259,33 @@
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-light w-50" data-bs-dismiss="modal">Annuler</button>
                     <button type="submit" class="btn btn-primary w-50">Envoyer les fonds</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- eto le epargne popup -->
+<div class="modal fade" id="modalEpargne" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Entrer une epargne</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="<?= base_url('client/epargne') ?>" method="post">
+                <?= csrf_field() ?>
+                <div class="modal-body py-4">
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="number" name="epargne" class="form-control form-control-lg" placeholder="0.00" min="1" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light w-50" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger w-50">Enregistrer l'epargne</button>
                 </div>
             </form>
         </div>

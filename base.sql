@@ -11,6 +11,7 @@ CREATE TABLE client (
     nom VARCHAR(100),
     numero_telephone VARCHAR(15) UNIQUE,
     solde DECIMAL(15, 2) NOT NULL DEFAULT 0.00,
+    epargne DECIMAL(5,2) NOT NULL 0.00,
     status VARCHAR(20) NOT NULL DEFAULT 'actif'
 );
 
@@ -32,7 +33,10 @@ CREATE TABLE configuration (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     commission_autre_operateur DECIMAL(5,2) NOT NULL
 );
-
+CREATE TABLE promotion (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    commission_meme_operateur DECIMAL(5,2) NOT NULL
+);
 CREATE TABLE bareme_frais (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type_operation_id INTEGER NOT NULL,
@@ -150,3 +154,4 @@ SELECT id, 1000001,  2000000,  3000 FROM type_operation WHERE code = 'TRANSFERT'
 INSERT INTO client (nom, numero_telephone, solde, status) VALUES 
 ('Jean Rabe', '0331234567', 50000.00, 'actif'),
 ('Marie Ranaivo', '0377654321', 10000.00, 'actif');
+

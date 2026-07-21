@@ -314,5 +314,33 @@ Transfert:
 
 
 
+    misy promotion pour frais de transfert pour meme operateur
+    - insertion base " promotion "
+    adminController
 
+alea 2:
+- gestion d'epargne:
+    - un utilisateur definit en poucentage son epargne, du coup nouveau page "epargne.php" dans views
+    - dans la page, definir son porcetnage epargne, a enregistrer
+    - if l'utilisateur viens d'avoir une tranferts d'argent, le pourcentage epargne est aplique
+    (ex: 5% epargne, du coup l'argent recu est diviser, 5% vas dans epargne et le reste va dans le solde normal)
 
+    -views:
+        - ajout page:
+                if !! epargne: " aucu epargne enregistrer
+                else{}
+            - affichage de epargne + bouton modifier => popup de modification
+    
+    -db:
+        -ajouter colonne epargne dans table client
+
+    - controlleur
+        -ajouter condition if epargne different de 0
+            appliquer formule montant * epargne en pourcentage => dans epargne
+            appart => solde du client
+
+    - model 
+        get l'epargne enregistrer dans la db
+    -
+    
+    

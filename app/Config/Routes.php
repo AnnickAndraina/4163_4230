@@ -16,6 +16,7 @@ $routes->group('client', function ($routes) {
     $routes->post('depot', 'DepotController::depot');
     $routes->post('retrait', 'RetraitController::retrait');
     $routes->post('transfert', 'TransfertController::transfert');
+    $routes->post('epargne', 'EpargneController::epargne');
 });
 
 $routes->group('admin', function ($routes) {
