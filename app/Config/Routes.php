@@ -11,20 +11,21 @@ $routes->post('connexion/login', 'AuthController::login');
 $routes->post('connexion/loginAdmin', 'AuthController::loginAdmin');
 $routes->get('logout', 'AuthController::logout');
 
-$routes->get('client/home', 'ClientController::home');
+$routes->group('client', function ($routes) {
+    $routes->get('home', 'ClientController::home');
+    $routes->post('depot', 'DepotController::depot');
+    $routes->post('retrait', 'RetraitController::retrait');
+    $routes->post('transfert', 'TransfertController::transfert');
+});
 
-$routes->post('client/depot', 'DepotController::depot');
-
-$routes->post('client/retrait', 'RetraitController::retrait');
-
-$routes->post('client/transfert', 'TransfertController::transfert');
-
-$routes->get('admin/dashboard', 'AdminController::dashboard');
-$routes->get('admin/prefixe/add', 'AdminController::addPrefixe');
-$routes->get('admin/prefixe/toggle/(:num)', 'AdminController::togglePrefixe/$1');
-$routes->post('admin/update-commission', 'AdminController::updateCommission');
-$routes->get('admin/bareme/type/(:num)', 'AdminController::baremeType/$1');
-$routes->post('admin/bareme/add', 'AdminController::addBareme');
-$routes->post('admin/bareme/update', 'AdminController::updateBareme');
-$routes->get('admin/gains/(:segment)', 'AdminController::gainsDetails/$1');
-$routes->get('admin/logout', 'AdminController::logout');
+$routes->group('admin', function ($routes) {
+    $routes->get('dashboard', 'AdminController::dashboard');
+    $routes->get('prefixe/add', 'AdminController::addPrefixe');
+    $routes->get('prefixe/toggle/(:num)', 'AdminController::togglePrefixe/$1');
+    $routes->post('update-commission', 'AdminController::updateCommission');
+    $routes->get('bareme/type/(:num)', 'AdminController::baremeType/$1');
+    $routes->post('bareme/add', 'AdminController::addBareme');
+    $routes->post('bareme/update', 'AdminController::updateBareme');
+    $routes->get('gains/(:segment)', 'AdminController::gainsDetails/$1');
+    $routes->get('logout', 'AdminController::logout');
+});
