@@ -8,6 +8,7 @@ use App\Models\BaremeFraisModel;
 use App\Models\GainsModel;
 use App\Models\ComptesModel;
 use App\Models\ConfigurationModel;
+use App\Models\MontantsOperateurModel;
 
 class AdminController extends BaseController
 {
@@ -28,13 +29,15 @@ class AdminController extends BaseController
         $gainsModel     = new GainsModel();
         $comptesModel   = new ComptesModel();
         $configModel    = new ConfigurationModel();
+        $montantsModel  = new MontantsOperateurModel();
 
         return view('admin_dashboard', [
-            'prefixes'   => $operateurModel->getAll(),
-            'types'      => $typeModel->findAll(),
-            'gains'      => $gainsModel->getSituation(),
-            'comptes'    => $comptesModel->getSituation(),
-            'commission' => $configModel->getCommission(),
+            'prefixes'           => $operateurModel->getAll(),
+            'types'              => $typeModel->findAll(),
+            'gainsTotaux'        => $gainsModel->getTotaux(),
+            'comptes'            => $comptesModel->getSituation(),
+            'commission'         => $configModel->getCommission(),
+            'montantsOperateurs' => $montantsModel->getSituation(),
         ]);
     }
 
@@ -138,5 +141,21 @@ class AdminController extends BaseController
     {
         session()->remove('admin_connecte');
         return redirect()->to('/');
+    }
+
+    public function gainsDetails($categorie)
+    {
+        if ($redirect = $this->checkAuth()) return $redirect;
+
+        if (!in_array($categorie, ['local', 'externe'])) {
+            return redirect()->to('admin/dashboard');
+        }
+
+        $gainsModel = new GainsModel();
+
+        return view('admin_gains_details', [
+            'categorie' => $categorie,
+            'details'   => $gainsModel->getDetailsByCategorie($categorie),
+        ]);
     }
 }

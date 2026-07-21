@@ -135,58 +135,68 @@
     </div>
 
     <!-- ========================================= -->
-    <!-- SECTION 3 : Situation des gains -->
+    <!-- SECTION 3 : Situation des gains (2 blocs cliquables) -->
     <!-- ========================================= -->
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-white">
             <strong>Situation des gains (frais collectés)</strong>
         </div>
         <div class="card-body">
-            <!-- Opérateurs locaux -->
-            <h6 class="fw-bold mb-3 text-primary">Opérateurs locaux</h6>
-            <div class="row text-center mb-4">
-                <?php if (!empty($gains['local'])): ?>
-                    <?php foreach ($gains['local'] as $g): ?>
-                        <div class="col-md-6">
-                            <div class="border rounded p-3 mb-2">
-                                <div class="text-muted small"><?= esc($g['type_operation']) ?></div>
-                                <div class="fs-4 fw-bold text-danger">
-                                    <?= number_format($g['total_gains'], 0, ',', ' ') ?> Ar
-                                </div>
-                                <div class="text-muted small"><?= $g['nombre_operations'] ?> opération(s)</div>
+            <div class="row g-3 text-center">
+                <div class="col-md-6">
+                    <a href="<?= base_url('admin/gains/local') ?>" class="text-decoration-none">
+                        <div class="border rounded p-4 h-100 text-dark bareme-card">
+                            <div class="text-muted small">Opérateurs locaux</div>
+                            <div class="fs-3 fw-bold text-primary">
+                                <?= number_format($gainsTotaux['local'], 0, ',', ' ') ?> Ar
                             </div>
+                            <div class="text-muted small mt-1">Voir le détail</div>
                         </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="col-12">
-                        <p class="text-muted">Aucun gain pour les opérateurs locaux</p>
-                    </div>
-                <?php endif; ?>
-            </div>
-
-            <hr>
-
-            <!-- Autres opérateurs -->
-            <h6 class="fw-bold mb-3 text-warning">Autres opérateurs</h6>
-            <div class="row text-center">
-                <?php if (!empty($gains['externe'])): ?>
-                    <?php foreach ($gains['externe'] as $g): ?>
-                        <div class="col-md-6">
-                            <div class="border rounded p-3 mb-2">
-                                <div class="text-muted small"><?= esc($g['type_operation']) ?></div>
-                                <div class="fs-4 fw-bold text-danger">
-                                    <?= number_format($g['total_gains'], 0, ',', ' ') ?> Ar
-                                </div>
-                                <div class="text-muted small"><?= $g['nombre_operations'] ?> opération(s)</div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="<?= base_url('admin/gains/externe') ?>" class="text-decoration-none">
+                        <div class="border rounded p-4 h-100 text-dark bareme-card">
+                            <div class="text-muted small">Autres opérateurs</div>
+                            <div class="fs-3 fw-bold text-warning">
+                                <?= number_format($gainsTotaux['externe'], 0, ',', ' ') ?> Ar
                             </div>
+                            <div class="text-muted small mt-1">Voir le détail</div>
                         </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="col-12">
-                        <p class="text-muted">Aucun gain pour les autres opérateurs</p>
-                    </div>
-                <?php endif; ?>
+                    </a>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- SECTION : Situation des montants à envoyer à chaque opérateur -->
+    <!-- ========================================= -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white">
+            <strong>Situation des montants à envoyer à chaque opérateur</strong>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Opérateur</th>
+                        <th>Commission totale à envoyer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($montantsOperateurs)): ?>
+                        <?php foreach ($montantsOperateurs as $m): ?>
+                            <tr>
+                                <td><?= esc($m['operateur_libelle']) ?></td>
+                                <td><?= number_format($m['total_commission_a_envoyer'], 0, ',', ' ') ?> Ar</td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr><td colspan="2" class="text-muted">Aucune donnée disponible.</td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 

@@ -22,4 +22,5 @@ $routes->get('admin/prefixe/toggle/(:num)', 'AdminController::togglePrefixe/$1')
 $routes->get('admin/bareme/type/(:num)', 'AdminController::baremeType/$1');
 $routes->post('admin/bareme/add', 'AdminController::addBareme');
 $routes->post('admin/bareme/update', 'AdminController::updateBareme');
+$routes->get('admin/gains/(:segment)', 'AdminController::gainsDetails/$1');
 $routes->get('admin/logout', 'AdminController::logout');
